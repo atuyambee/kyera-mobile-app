@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Kyera Smart Ag</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        body { background: #f5f5f5; padding-bottom: 70px; }
+        .header { background: linear-gradient(135deg, #2E7D32, #4CAF50); color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+        .header h2 { margin: 0; font-size: 1.5rem; }
+        .header-right { display: flex; gap: 15px; align-items: center; }
+        .language-toggle { background: rgba(255,255,255,0.2); padding: 8px 15px; border-radius: 20px; cursor: pointer; font-size: 0.9rem; }
+        .auth-btn { background: rgba(255,255,255,0.2); padding: 8px 15px; border-radius: 20px; cursor: pointer; border: none; color: white; }
+        .admin-link { background: #ffc107; color: #333; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; cursor: pointer; text-decoration: none; font-weight: bold; }
+        .admin-link:hover { transform: scale(1.1); background: #ffb300; }
+        .stats-bar { background: white; padding: 15px; display: flex; justify-content: space-around; border-bottom: 1px solid #eee; }
+        .stat-item { text-align: center; flex: 1; padding: 10px; border-radius: 10px; cursor: pointer; }
+        .stat-item:hover { background: #f0f0f0; }
+        .stat-value { font-size: 1.8rem; font-weight: bold; color: #2E7D32; }
+        .stat-label { font-size: 0.9rem; color: #666; }
+        .weather-card { background: white; margin: 15px; padding: 20px; border-radius: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); cursor: pointer; }
+        .weather-main { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .temp { font-size: 48px; font-weight: bold; color: #333; }
+        .weather-icon { font-size: 48px; }
+        .humidity { color: #666; margin-top: 5px; font-size: 0.9rem; }
+        .forecast { display: flex; justify-content: space-between; margin-top: 15px; padding-top: 15px; border-top: 1px solid #eee; }
+        .forecast-item { text-align: center; flex: 1; padding: 5px; border-radius: 8px; cursor: pointer; }
+        .forecast-item:hover { background: #f5f5f5; }
+        .forecast-temp { font-weight: bold; font-size: 1.1rem; }
+        .section-title { margin: 20px 15px 10px; font-size: 1.1rem; display: flex; justify-content: space-between; align-items: center; }
+        .view-all { color: #2E7D32; font-size: 0.9rem; cursor: pointer; padding: 5px 10px; border-radius: 20px; }
+        .view-all:hover { background: #e8f5e9; }
+        .crop-selector { display: flex; margin: 15px; gap: 10px; overflow-x: auto; }
+        .crop-btn { flex: 0 0 auto; padding: 12px 25px; border: none; border-radius: 25px; background: white; font-size: 1rem; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .crop-btn:hover { background: #f0f0f0; transform: translateY(-2px); }
+        .crop-btn.active { background: #2E7D32; color: white; }
+        .alerts-container { margin: 15px; }
+        .alert { padding: 15px; border-radius: 12px; margin-bottom: 12px; color: white; cursor: pointer; transition: transform 0.2s; }
+        .alert:hover { transform: translateX(5px); }
+        .alert.high { background: linear-gradient(135deg, #dc3545, #c82333); }
+        .alert.medium { background: linear-gradient(135deg, #fd7e14, #e06b0a); }
+        .alert.low { background: linear-gradient(135deg, #ffc107, #e0a800); color: #333; }
+        .alert-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .alert-pest { font-weight: bold; font-size: 1.2rem; }
+        .alert-risk { background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; }
+        .alert-advice { font-size: 0.95rem; margin: 8px 0; line-height: 1.4; }
+        .alert-details { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; background: rgba(255,255,255,0.1); border-radius: 8px; margin-top: 10px; }
+        .alert.expanded .alert-details { max-height: 300px; padding: 15px; }
+        .prevention-tip, .treatment-tip { margin-bottom: 12px; font-size: 0.9rem; }
+        .chart-card { background: white; margin: 15px; padding: 20px; border-radius: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .chart { display: flex; align-items: flex-end; justify-content: space-around; gap: 8px; margin-top: 20px; min-height: 180px; }
+        .chart-bar-wrapper { flex: 1; display: flex; flex-direction: column; align-items: center; }
+        .chart-bar { width: 35px; background: linear-gradient(to top, #2E7D32, #4CAF50); border-radius: 8px 8px 0 0; position: relative; min-height: 30px; }
+        .chart-value { position: absolute; top: -25px; left: 50%; transform: translateX(-50%); font-size: 12px; font-weight: bold; color: #2E7D32; background: rgba(255,255,255,0.9); padding: 2px 6px; border-radius: 12px; }
+        .chart-label { margin-top: 8px; font-size: 12px; color: #555; }
+        .register-form { background: white; margin: 15px; padding: 25px; border-radius: 15px; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; color: #555; font-weight: 500; }
+        .form-group input, .form-group select { width: 100%; padding: 12px 15px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 1rem; }
+        .form-group input:focus { outline: none; border-color: #2E7D32; }
+        .btn { background: #2E7D32; color: white; border: none; padding: 15px 20px; border-radius: 10px; width: 100%; font-size: 1.1rem; font-weight: bold; cursor: pointer; }
+        .btn:hover { background: #1e5e22; }
+        .btn-outline { background: white; border: 2px solid #2E7D32; color: #2E7D32; }
+        .btn-small { padding: 8px 15px; font-size: 0.9rem; width: auto; }
+        .profile-view { background: #e8f5e9; padding: 15px; border-radius: 10px; margin-bottom: 20px; }
+        .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; padding: 20px; }
+        .modal.active { display: flex; }
+        .modal-content { background: white; width: 100%; max-width: 400px; border-radius: 20px; padding: 25px; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .modal-close { font-size: 28px; cursor: pointer; color: #999; }
+        .nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; display: flex; padding: 10px 0; border-radius: 20px 20px 0 0; box-shadow: 0 -5px 20px rgba(0,0,0,0.1); z-index: 100; }
+        .nav-item { flex: 1; text-align: center; padding: 12px; cursor: pointer; color: #999; transition: all 0.3s; border-radius: 10px; margin: 0 5px; }
+        .nav-item:hover { background: #f5f5f5; color: #2E7D32; }
+        .nav-item.active { color: #2E7D32; background: #e8f5e9; }
+        .nav-item i { font-size: 24px; display: block; margin-bottom: 4px; }
+        .nav-item span { font-size: 12px; font-weight: 500; }
+        .badge { position: absolute; top: 0; right: 15px; background: #dc3545; color: white; border-radius: 50%; padding: 2px 6px; font-size: 10px; }
+        .page { display: none; }
+        .page.active-page { display: block; }
+        .toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: white; padding: 10px 20px; border-radius: 25px; font-size: 14px; z-index: 1000; animation: fadeInOut 2s ease; display: none; }
+        @keyframes fadeInOut { 0% { opacity: 0; bottom: 60px; } 10% { opacity: 1; bottom: 80px; } 90% { opacity: 1; bottom: 80px; } 100% { opacity: 0; bottom: 60px; } }
+        .loading-spinner { border: 3px solid #f3f3f3; border-top: 3px solid #2E7D32; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h2>🌱 Kyera Smart Ag</h2>
+        <div class="header-right">
+            <div class="language-toggle" id="langToggle" onclick="toggleLanguage()">🇺🇬 Runyankole</div>
+            <div id="auth-section"><button class="auth-btn" id="login-btn" onclick="showLoginModal()">Login</button></div>
+            <a href="/admin" class="admin-link" id="admin-link" style="display: none;">👑</a>
+        </div>
+    </div>
+
+    <div class="stats-bar">
+        <div class="stat-item" onclick="viewFarmers()"><div class="stat-value" id="farmer-count">0</div><div class="stat-label">Total Farmers</div></div>
+        <div class="stat-item" onclick="viewAllAlerts()"><div class="stat-value" id="alert-count">0</div><div class="stat-label">Alerts</div></div>
+        <div class="stat-item" onclick="viewTodayAlerts()"><div class="stat-value" id="today-count">0</div><div class="stat-label">Today's Alerts</div></div>
+    </div>
+
+    <!-- Home Page -->
+    <div id="home-page" class="page active-page">
+        <div class="weather-card" onclick="refreshWeather()">
+            <div class="weather-main"><div><div class="temp" id="temperature">--°C</div><div id="weather-desc">Loading...</div><div class="humidity" id="humidity">--%</div></div><div class="weather-icon" id="weather-icon">🌤️</div></div>
+            <div class="forecast" id="forecast"><div class="forecast-item"><div>Mon</div><span class="forecast-temp">--°</span></div><div class="forecast-item"><div>Tue</div><span class="forecast-temp">--°</span></div><div class="forecast-item"><div>Wed</div><span class="forecast-temp">--°</span></div><div class="forecast-item"><div>Thu</div><span class="forecast-temp">--°</span></div><div class="forecast-item"><div>Fri</div><span class="forecast-temp">--°</span></div></div>
+        </div>
+
+        <div class="section-title"><span>🌾 Select Crop</span></div>
+        <div class="crop-selector">
+            <button class="crop-btn active" onclick="selectCrop('maize')">🌽 Maize</button>
+            <button class="crop-btn" onclick="selectCrop('bananas')">🍌 Bananas</button>
+            <button class="crop-btn" onclick="selectCrop('beans')">🫘 Beans</button>
+            <button class="crop-btn" onclick="selectCrop('general')">🌱 General</button>
+        </div>
+
+        <div class="section-title"><span>⚠️ Risk Alerts</span><span class="view-all" onclick="viewAllAlerts()">View All →</span></div>
+        <div id="alerts-container" class="alerts-container"><div class="loading-spinner"></div><div>Loading alerts...</div></div>
+
+        <div class="section-title"><span>📊 Weather Trend</span><span class="view-all" onclick="refreshWeatherHistory()">↻ Refresh</span></div>
+        <div class="chart-card"><div class="chart-header"><span>Last 7 Days</span><span class="chart-trend" id="weather-trend">--</span></div><div class="chart" id="weather-chart"></div></div>
+    </div>
+
+    <!-- Alerts Page -->
+    <div id="alerts-page" class="page">
+        <div class="section-title"><span>📋 All Alerts</span><span class="view-all" onclick="refreshAlerts()">↻ Refresh</span></div>
+        <div class="crop-selector"><button class="crop-btn active" onclick="loadHistory('all')">📋 All</button><button class="crop-btn" onclick="loadHistory('maize')">🌽 Maize</button><button class="crop-btn" onclick="loadHistory('bananas')">🍌 Bananas</button><button class="crop-btn" onclick="loadHistory('beans')">🫘 Beans</button></div>
+        <div id="history-container" class="history-list" style="background:white; margin:15px; border-radius:12px; padding:15px;"><div class="loading-spinner"></div><div>Loading history...</div></div>
+    </div>
+
+    <!-- Profile Page -->
+    <div id="profile-page" class="page">
+        <div class="register-form">
+            <h4>👤 Farmer Registration / Login</h4>
+            <div id="profile-view" class="profile-view" style="display:none;"><h5>Welcome, <span id="profile-name-display"></span>!</h5><p>📞 Phone: <span id="profile-phone-display"></span></p><p>🌾 Crop: <span id="profile-crop-display"></span></p><p>📍 Village: <span id="profile-village-display"></span></p><button class="btn-outline btn-small" onclick="logout()">Logout</button></div>
+            <div id="login-form"><div class="form-group"><label>Name or Phone Number</label><input type="text" id="login-phone" placeholder="e.g., Kyera Farmer or 256700000000"></div><div class="form-group"><label>Password</label><input type="password" id="login-password" placeholder="Your password"></div><button class="btn" onclick="login()">Login</button><hr style="margin:20px 0;"><h5>New Farmer? Register here:</h5></div>
+            <div class="form-group"><label>Full Name</label><input type="text" id="reg-name" placeholder="Enter your name"></div>
+            <div class="form-group"><label>Phone Number</label><input type="tel" id="reg-phone" placeholder="07XXXXXXXX"></div>
+            <div class="form-group"><label>Village</label><input type="text" id="reg-village" placeholder="Your village"></div>
+            <div class="form-group"><label>Main Crop</label><select id="reg-crop"><option value="maize">Maize</option><option value="bananas">Bananas</option><option value="beans">Beans</option></select></div>
+            <div class="form-group"><label>Farm Size (acres)</label><input type="number" id="reg-size" step="0.1" placeholder="e.g., 2.5"></div>
+            <div class="form-group"><label>Other Crops</label><input type="text" id="reg-other" placeholder="e.g., coffee, cassava"></div>
+            <button class="btn" onclick="registerFarmer()">Register / Update</button>
+        </div>
+    </div>
+
+    <!-- Forum Page -->
+    <div id="forum-page" class="page">
+        <div class="register-form"><h4>🌾 Farmer Community Forum</h4><p>Coming soon...</p></div>
+    </div>
+
+    <!-- Login Modal -->
+    <div class="modal" id="login-modal"><div class="modal-content"><div class="modal-header"><h4>🔐 Farmer Login</h4><span class="modal-close" onclick="closeLoginModal()">&times;</span></div><div class="form-group"><label>Name or Phone Number</label><input type="text" id="modal-phone" placeholder="e.g., Kyera Farmer or 256700000000"></div><div class="form-group"><label>Password</label><input type="password" id="modal-password" placeholder="Your password"></div><button class="btn" onclick="loginModal()">Login</button><p style="margin-top:15px; text-align:center;">New farmer? <a href="#" onclick="closeLoginModal(); showPage('profile');">Register here</a></p></div></div>
+
+    <!-- Farmers List Modal -->
+    <div class="modal" id="farmers-modal"><div class="modal-content"><div class="modal-header"><h4>👥 Farmers List</h4><span class="modal-close" onclick="closeFarmersModal()">&times;</span></div><div id="farmers-list" style="max-height:300px; overflow-y:auto;"></div></div></div>
+
+    <div id="toast" class="toast"></div>
+
+    <div class="nav">
+        <div class="nav-item active" onclick="showPage('home')"><i>🏠</i><span>Home</span></div>
+        <div class="nav-item" onclick="showPage('alerts')"><i>🔔</i><span>Alerts</span><span class="badge" id="alert-badge" style="display:none;">0</span></div>
+        <div class="nav-item" onclick="showPage('forum')"><i>🌾</i><span>Forum</span></div>
+        <div class="nav-item" onclick="showPage('profile')"><i>👤</i><span>Profile</span></div>
+    </div>
+
+    <script>
+        let currentCrop = 'maize';
+        let currentLang = 'en';
+        let currentFarmer = null;
+
+        function showToast(msg) { let t = document.getElementById('toast'); t.textContent = msg; t.style.display = 'block'; setTimeout(() => t.style.display = 'none', 2000); }
+        function clearLoginForms() { document.getElementById('login-phone').value = ''; document.getElementById('login-password').value = ''; document.getElementById('modal-phone').value = ''; document.getElementById('modal-password').value = ''; }
+
+        function checkAuth() {
+            fetch('/api/auth/check').then(r => r.json()).then(data => {
+                if (data.authenticated) {
+                    document.getElementById('login-btn').textContent = 'Logout';
+                    document.getElementById('login-btn').onclick = () => logout();
+                    document.getElementById('login-form').style.display = 'none';
+                    document.getElementById('profile-view').style.display = 'block';
+                    document.getElementById('admin-link').style.display = data.farmer.is_admin === 1 ? 'flex' : 'none';
+                    loadProfileData();
+                } else {
+                    document.getElementById('login-btn').textContent = 'Login';
+                    document.getElementById('login-btn').onclick = () => showLoginModal();
+                    document.getElementById('login-form').style.display = 'block';
+                    document.getElementById('profile-view').style.display = 'none';
+                    document.getElementById('admin-link').style.display = 'none';
+                    clearProfileDisplay();
+                }
+            });
+        }
+
+        function loadProfileData() {
+            let phone = localStorage.getItem('farmer_phone');
+            if (phone) fetch('/api/farmer/' + phone).then(r => r.json()).then(f => { if (!f.error) { currentFarmer = f; document.getElementById('profile-name-display').textContent = f.name; document.getElementById('profile-phone-display').textContent = f.phone; document.getElementById('profile-crop-display').textContent = f.main_crop; document.getElementById('profile-village-display').textContent = f.village; document.getElementById('reg-name').value = f.name; document.getElementById('reg-phone').value = f.phone; document.getElementById('reg-village').value = f.village; document.getElementById('reg-crop').value = f.main_crop; document.getElementById('reg-size').value = f.farm_size || ''; document.getElementById('reg-other').value = f.other_crops || ''; } });
+        }
+
+        function clearProfileDisplay() { document.getElementById('profile-name-display').textContent = ''; document.getElementById('profile-phone-display').textContent = ''; document.getElementById('profile-crop-display').textContent = ''; document.getElementById('profile-village-display').textContent = ''; }
+
+        function login() {
+            let identifier = document.getElementById('login-phone').value;
+            let password = document.getElementById('login-password').value;
+            if (!identifier) { alert('Enter name or phone'); return; }
+            fetch('/api/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ phone: identifier, password: password }) })
+                .then(r => r.json()).then(data => {
+                    if (data.success) { localStorage.setItem('farmer_phone', data.farmer.phone); alert(`Welcome ${data.farmer.name}!`); clearLoginForms(); checkAuth(); showToast(`Welcome back ${data.farmer.name}!`); showPage('home'); }
+                    else alert('Invalid credentials');
+                });
+        }
+
+        function loginModal() {
+            let identifier = document.getElementById('modal-phone').value;
+            let password = document.getElementById('modal-password').value;
+            if (!identifier) { alert('Enter name or phone'); return; }
+            fetch('/api/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ phone: identifier, password: password }) })
+                .then(r => r.json()).then(data => {
+                    if (data.success) { localStorage.setItem('farmer_phone', data.farmer.phone); alert(`Welcome ${data.farmer.name}!`); clearLoginForms(); closeLoginModal(); checkAuth(); showToast(`Welcome back ${data.farmer.name}!`); showPage('home'); }
+                    else alert('Invalid credentials');
+                });
+        }
+
+        function logout() { fetch('/api/auth/logout', { method: 'POST' }).then(() => { localStorage.clear(); sessionStorage.clear(); clearLoginForms(); clearProfileDisplay(); document.getElementById('login-form').style.display = 'block'; document.getElementById('profile-view').style.display = 'none'; document.getElementById('admin-link').style.display = 'none'; showToast('Logged out'); showPage('home'); location.reload(); }); }
+
+        function showLoginModal() { clearLoginForms(); document.getElementById('login-modal').classList.add('active'); }
+        function closeLoginModal() { document.getElementById('login-modal').classList.remove('active'); clearLoginForms(); }
+        function closeFarmersModal() { document.getElementById('farmers-modal').classList.remove('active'); }
+
+        function registerFarmer() {
+            let data = { name: document.getElementById('reg-name').value, phone: document.getElementById('reg-phone').value, village: document.getElementById('reg-village').value, main_crop: document.getElementById('reg-crop').value, farm_size: document.getElementById('reg-size').value, other_crops: document.getElementById('reg-other').value };
+            if (!data.name || !data.phone) { alert('Fill required fields'); return; }
+            fetch('/api/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) }).then(r => r.json()).then(result => { alert(result.message); localStorage.setItem('farmer_phone', data.phone); checkAuth(); loadStats(); showPage('home'); });
+        }
+
+        function loadWeather() {
+            fetch('/api/weather').then(r => r.json()).then(data => {
+                if (data.success) { document.getElementById('temperature').textContent = Math.round(data.data.temp) + '°C'; document.getElementById('weather-desc').textContent = data.data.conditions; document.getElementById('humidity').innerHTML = 'Humidity: ' + data.data.humidity + '%'; document.getElementById('weather-icon').textContent = data.data.conditions.includes('rain') ? '🌧️' : (data.data.conditions.includes('cloud') ? '☁️' : '☀️'); }
+            });
+        }
+
+        function loadWeatherHistory() {
+            fetch('/api/weather/history?days=7').then(r => r.json()).then(data => {
+                if (data.success && data.data.length) {
+                    let days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], today = new Date().getDay(), forecastHtml = '', chartHtml = '';
+                    data.data.slice(0, 5).forEach((d, i) => { let idx = (today + i + 1) % 7; let t = Math.round(d.temperature); forecastHtml += `<div class="forecast-item"><div>${days[idx]}</div><span class="forecast-temp">${t}°</span></div>`; });
+                    data.data.slice(0, 7).forEach((d, i) => { let t = Math.round(d.temperature); let h = 40 + (t / 35) * 100; let idx = (today + i) % 7; chartHtml += `<div class="chart-bar-wrapper"><div class="chart-bar" style="height:${Math.min(120, h)}px"><span class="chart-value">${t}°</span></div><div class="chart-label">${days[idx]}</div></div>`; });
+                    document.getElementById('forecast').innerHTML = forecastHtml; document.getElementById('weather-chart').innerHTML = chartHtml;
+                    let avg = Math.round(data.data.slice(0, 7).reduce((a,b)=>a+b.temperature,0)/7); document.getElementById('weather-trend').textContent = `📈 Avg: ${avg}°C`;
+                }
+            });
+        }
+
+        function loadAlerts(crop) {
+            fetch('/api/alerts/' + crop).then(r => r.json()).then(alerts => {
+                let html = '';
+                if (alerts.length === 0) html = '<div class="alert" style="background:#28a745;">✅ No active alerts</div>';
+                else alerts.forEach((a, i) => { let cls = (a.risk || 'low').toLowerCase(); html += `<div class="alert ${cls}" onclick="toggleAlertDetails(${i})"><div class="alert-header"><span class="alert-pest">${a.pest}</span><span class="alert-risk">${a.risk}</span></div><div class="alert-advice">${a.advice}</div><div class="alert-details" id="alert-details-${i}"><div class="prevention-tip"><strong>🛡️ Prevention:</strong> ${a.prevention}</div><div class="treatment-tip"><strong>💊 Treatment:</strong> ${a.treatment}</div></div></div>`; });
+                document.getElementById('alerts-container').innerHTML = html;
+                document.getElementById('alert-badge').textContent = alerts.length; document.getElementById('alert-badge').style.display = alerts.length ? 'inline-block' : 'none';
+            });
+        }
+
+        function toggleAlertDetails(idx) { document.querySelectorAll('.alert')[idx]?.classList.toggle('expanded'); }
+        function selectCrop(crop) { currentCrop = crop; document.querySelectorAll('.crop-btn').forEach(b => b.classList.remove('active')); event.target.classList.add('active'); loadAlerts(crop); }
+        function loadHistory(crop) { fetch('/api/history/' + crop).then(r => r.json()).then(alerts => { let html = ''; if (alerts.length === 0) html = '<div style="padding:20px; text-align:center;">No alerts</div>'; else alerts.forEach(a => { let cls = (a.risk || 'low').toLowerCase(); html += `<div style="padding:15px; border-bottom:1px solid #eee;"><div><strong>${a.pest}</strong> <span style="background:${cls==='high'?'#dc3545':cls==='medium'?'#fd7e14':'#ffc107'}; color:white; padding:2px 8px; border-radius:12px; font-size:11px;">${a.risk}</span></div><div style="font-size:11px; color:#999;">${new Date(a.date).toLocaleString()}</div></div>`; }); document.getElementById('history-container').innerHTML = html; }); }
+        function loadStats() { fetch('/api/stats').then(r => r.json()).then(data => { if (data.success) { document.getElementById('farmer-count').textContent = data.data.farmers; document.getElementById('alert-count').textContent = data.data.total_alerts; document.getElementById('today-count').textContent = data.data.alerts_today; } }); }
+        function viewFarmers() { fetch('/api/farmers/list').then(r => r.json()).then(farmers => { let html = farmers.map(f => `<div style="padding:10px; border-bottom:1px solid #eee;"><strong>${f.name}</strong> - ${f.phone}<br><small>${f.main_crop}</small></div>`).join(''); document.getElementById('farmers-list').innerHTML = html || '<div>No farmers</div>'; document.getElementById('farmers-modal').classList.add('active'); }); }
+        function viewAllAlerts() { showPage('alerts'); }
+        function viewTodayAlerts() { showToast(`Today's Alerts: ${document.getElementById('today-count').textContent}`); }
+        function refreshWeather() { loadWeather(); showToast('Weather updated'); }
+        function refreshWeatherHistory() { loadWeatherHistory(); showToast('Chart refreshed'); }
+        function refreshAlerts() { loadHistory('all'); showToast('Alerts refreshed'); }
+
+        function showPage(page) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
+            document.getElementById(page + '-page').classList.add('active-page');
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            if (page === 'home') { document.getElementById('nav-home').classList.add('active'); loadWeather(); loadAlerts(currentCrop); loadWeatherHistory(); loadStats(); }
+            else if (page === 'alerts') { document.getElementById('nav-alerts').classList.add('active'); loadHistory('all'); }
+            else if (page === 'forum') document.getElementById('nav-forum').classList.add('active');
+            else if (page === 'profile') document.getElementById('nav-profile').classList.add('active');
+        }
+
+        function toggleLanguage() { currentLang = currentLang === 'en' ? 'rn' : 'en'; document.getElementById('langToggle').textContent = currentLang === 'en' ? '🇺🇬 Runyankole' : '🇬🇧 English'; }
+
+        checkAuth(); loadWeather(); loadAlerts('maize'); loadWeatherHistory(); loadStats();
+        setInterval(() => { if (document.getElementById('home-page').classList.contains('active-page')) { loadWeather(); loadAlerts(currentCrop); loadStats(); } }, 60000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,2082 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Kyera Smart Ag</title>
+    <link rel="manifest" href="/static/manifest.json">
+    <meta name="theme-color" content="#2E7D32">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        body {
+            background: #f5f5f5;
+            padding-bottom: 70px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2E7D32, #4CAF50);
+            color: white;
+            padding: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+        
+        .header-right {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .language-toggle {
+            background: rgba(255,255,255,0.2);
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.3s;
+        }
+        
+        .language-toggle:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .auth-btn {
+            background: rgba(255,255,255,0.2);
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.3s;
+            border: none;
+            color: white;
+        }
+        
+        .auth-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .admin-link {
+            background: #1a237e;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            cursor: pointer;
+            text-decoration: none;
+            transition: transform 0.3s;
+        }
+        
+        .admin-link:hover {
+            transform: scale(1.1);
+        }
+        
+        .stats-bar {
+            background: white;
+            padding: 15px;
+            display: flex;
+            justify-content: space-around;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .stat-item {
+            text-align: center;
+            flex: 1;
+            padding: 10px;
+            border-radius: 10px;
+            transition: background 0.2s;
+            cursor: pointer;
+        }
+        
+        .stat-item:hover {
+            background: #f0f0f0;
+        }
+        
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #2E7D32;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .weather-card {
+            background: white;
+            margin: 15px;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .weather-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .weather-main {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .temp {
+            font-size: 48px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .weather-icon {
+            font-size: 48px;
+        }
+        
+        .humidity {
+            color: #666;
+            margin-top: 5px;
+            font-size: 0.9rem;
+        }
+        
+        .forecast {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+        
+        .forecast-item {
+            text-align: center;
+            flex: 1;
+            padding: 5px;
+            border-radius: 8px;
+            transition: background 0.2s;
+            cursor: pointer;
+        }
+        
+        .forecast-item:hover {
+            background: #f5f5f5;
+        }
+        
+        .forecast-temp {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        
+        .section-title {
+            margin: 20px 15px 10px;
+            font-size: 1.1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .view-all {
+            color: #2E7D32;
+            font-size: 0.9rem;
+            cursor: pointer;
+            font-weight: normal;
+            padding: 5px 10px;
+            border-radius: 20px;
+            transition: background 0.2s;
+        }
+        
+        .view-all:hover {
+            background: #e8f5e9;
+        }
+        
+        .crop-selector {
+            display: flex;
+            margin: 15px;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+        }
+        
+        .crop-btn {
+            flex: 0 0 auto;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 25px;
+            background: white;
+            font-size: 1rem;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            transition: all 0.3s;
+        }
+        
+        .crop-btn:hover {
+            background: #f0f0f0;
+            transform: translateY(-2px);
+        }
+        
+        .crop-btn.active {
+            background: #2E7D32;
+            color: white;
+        }
+        
+        .alerts-container {
+            margin: 15px;
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            color: white;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .alert:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .alert.high {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+        }
+        
+        .alert.medium {
+            background: linear-gradient(135deg, #fd7e14, #e06b0a);
+        }
+        
+        .alert.low {
+            background: linear-gradient(135deg, #ffc107, #e0a800);
+            color: #333;
+        }
+        
+        .alert-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .alert-pest {
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        
+        .alert-risk {
+            background: rgba(255,255,255,0.2);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        
+        .alert-advice {
+            font-size: 0.95rem;
+            margin: 8px 0;
+            opacity: 0.95;
+            line-height: 1.4;
+        }
+        
+        .alert-details {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+        
+        .alert.expanded .alert-details {
+            max-height: 300px;
+            padding: 15px;
+        }
+        
+        .prevention-tip, .treatment-tip {
+            margin-bottom: 12px;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+        
+        .chart-card {
+            background: white;
+            margin: 15px;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .chart-title {
+            font-weight: bold;
+            font-size: 1rem;
+        }
+        
+        .chart-trend {
+            font-size: 0.9rem;
+            color: #666;
+            padding: 5px 10px;
+            border-radius: 20px;
+            background: #f5f5f5;
+        }
+        
+        .chart {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            gap: 8px;
+            margin-top: 20px;
+            min-height: 180px;
+        }
+        
+        .chart-bar-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .chart-bar {
+            width: 35px;
+            background: linear-gradient(to top, #2E7D32, #4CAF50);
+            border-radius: 8px 8px 0 0;
+            transition: height 0.3s ease;
+            position: relative;
+            min-height: 30px;
+        }
+        
+        .chart-value {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 12px;
+            font-weight: bold;
+            color: #2E7D32;
+            white-space: nowrap;
+            background: rgba(255,255,255,0.9);
+            padding: 2px 6px;
+            border-radius: 12px;
+        }
+        
+        .chart-label {
+            margin-top: 8px;
+            font-size: 12px;
+            font-weight: 500;
+            color: #555;
+        }
+        
+        .weather-summary {
+            margin-top: 20px;
+            padding: 15px;
+            background: linear-gradient(135deg, #f5f5f5, #e8f5e9);
+            border-radius: 12px;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+            border-left: 4px solid #2E7D32;
+        }
+        
+        .register-form {
+            background: white;
+            margin: 15px;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+        
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+        }
+        
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #2E7D32;
+        }
+        
+        .btn {
+            background: #2E7D32;
+            color: white;
+            border: none;
+            padding: 15px 20px;
+            border-radius: 10px;
+            width: 100%;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .btn:hover {
+            background: #1e5e22;
+        }
+        
+        .btn-outline {
+            background: white;
+            border: 2px solid #2E7D32;
+            color: #2E7D32;
+        }
+        
+        .btn-small {
+            padding: 8px 15px;
+            font-size: 0.9rem;
+            width: auto;
+        }
+        
+        .history-list {
+            background: white;
+            margin: 15px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        .history-item {
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+        
+        .history-item:hover {
+            background: #f5f5f5;
+        }
+        
+        .history-pest {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .history-risk {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .history-risk.high { background: #dc3545; }
+        .history-risk.medium { background: #fd7e14; }
+        .history-risk.low { background: #ffc107; color: #333; }
+        
+        .history-date {
+            font-size: 0.75rem;
+            color: #999;
+            margin-top: 4px;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            width: 100%;
+            max-width: 400px;
+            border-radius: 20px;
+            padding: 25px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .modal-close {
+            font-size: 28px;
+            cursor: pointer;
+            color: #999;
+        }
+        
+        .nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            display: flex;
+            padding: 10px 0;
+            border-radius: 20px 20px 0 0;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.1);
+            z-index: 100;
+        }
+        
+        .nav-item {
+            flex: 1;
+            text-align: center;
+            padding: 12px;
+            cursor: pointer;
+            color: #999;
+            transition: all 0.3s;
+            position: relative;
+            border-radius: 10px;
+            margin: 0 5px;
+        }
+        
+        .nav-item:hover {
+            background: #f5f5f5;
+            color: #2E7D32;
+        }
+        
+        .nav-item.active {
+            color: #2E7D32;
+            background: #e8f5e9;
+        }
+        
+        .nav-item i {
+            font-size: 24px;
+            display: block;
+            margin-bottom: 4px;
+        }
+        
+        .nav-item span {
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .badge {
+            position: absolute;
+            top: 0;
+            right: 15px;
+            background: #dc3545;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 10px;
+            font-weight: bold;
+        }
+        
+        .page {
+            display: none;
+        }
+        
+        .page.active-page {
+            display: block;
+        }
+        
+        .loading-spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #2E7D32;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 14px;
+            z-index: 1000;
+            animation: fadeInOut 2s ease;
+        }
+        
+        @keyframes fadeInOut {
+            0% { opacity: 0; bottom: 60px; }
+            10% { opacity: 1; bottom: 80px; }
+            90% { opacity: 1; bottom: 80px; }
+            100% { opacity: 0; bottom: 60px; }
+        }
+        
+        .forum-container {
+            background: white;
+            margin: 15px;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        .forum-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .forum-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #2E7D32;
+        }
+        
+        .ask-btn {
+            background: #2E7D32;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+        
+        .forum-filters {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-btn {
+            padding: 8px 15px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            background: white;
+            cursor: pointer;
+        }
+        
+        .filter-btn.active {
+            background: #2E7D32;
+            color: white;
+        }
+        
+        .question-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            border-left: 4px solid #2E7D32;
+        }
+        
+        .question-title {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        
+        .question-crop {
+            background: #e8f5e9;
+            color: #2E7D32;
+            padding: 3px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+        }
+        
+        .question-meta {
+            display: flex;
+            gap: 15px;
+            color: #666;
+            font-size: 0.8rem;
+            margin-top: 10px;
+        }
+        
+        .ask-form {
+            background: white;
+            margin: 15px;
+            padding: 25px;
+            border-radius: 15px;
+        }
+        
+        .form-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #2E7D32;
+        }
+        
+        .question-input, .question-textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            margin-bottom: 15px;
+        }
+        
+        .question-textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+        
+        .question-detail {
+            background: white;
+            margin: 15px;
+            padding: 20px;
+            border-radius: 15px;
+        }
+        
+        .question-content {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            line-height: 1.6;
+        }
+        
+        .answers-section {
+            margin-top: 30px;
+            padding: 0 15px;
+        }
+        
+        .answer-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 4px solid #2196F3;
+        }
+        
+        .answer-card.best-answer {
+            border-left: 4px solid #ffc107;
+            background: #fff9e6;
+        }
+        
+        .best-badge {
+            background: #ffc107;
+            color: #333;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+        
+        .answer-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+        
+        .action-btn {
+            background: none;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.9rem;
+        }
+        
+        .action-btn.liked {
+            color: #e91e63;
+        }
+        
+        .profile-view {
+            background: #e8f5e9;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .profile-view h5 {
+            margin-bottom: 10px;
+            color: #2E7D32;
+        }
+        
+        .profile-view p {
+            margin: 5px 0;
+            font-size: 0.9rem;
+        }
+        
+        .password-change-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        
+        @media (prefers-color-scheme: dark) {
+            body { background: #121212; color: #eee; }
+            .weather-card, .crop-btn, .register-form, .history-list, .chart-card,
+            .stats-bar, .nav, .modal-content, .forum-container, .ask-form, .question-detail,
+            .profile-view {
+                background: #1e1e1e;
+                color: #eee;
+            }
+            .crop-btn { color: #eee; background: #2d2d2d; }
+            .crop-btn.active { background: #4CAF50; }
+            .stat-value { color: #4CAF50; }
+            .stat-label, .chart-label, .history-date, .humidity { color: #aaa; }
+            .form-group label { color: #ccc; }
+            .form-group input, .form-group select, .question-input, .question-textarea {
+                background: #2d2d2d;
+                border-color: #444;
+                color: #eee;
+            }
+            .question-card, .answer-card, .question-content { background: #2d2d2d; }
+            .filter-btn { background: #2d2d2d; border-color: #444; color: #eee; }
+            .chart-bar { background: linear-gradient(to top, #1e5e22, #2E7D32); }
+            .chart-value { background: #2d2d2d; color: #4CAF50; }
+            .weather-summary { background: #2d2d2d; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h2>🌱 Kyera Smart Ag</h2>
+        <div class="header-right">
+            <div class="language-toggle" id="langToggle" onclick="toggleLanguage()">
+                <span id="lang-btn">🇺🇬 Runyankole</span>
+            </div>
+            <div id="auth-section">
+                <button class="auth-btn" id="login-btn" onclick="showLoginModal()">Login</button>
+            </div>
+            <a href="/admin" class="admin-link">👤</a>
+        </div>
+    </div>
+
+    <div class="stats-bar" id="stats">
+        <div class="stat-item" onclick="viewFarmers()">
+            <div class="stat-value" id="farmer-count">0</div>
+            <div class="stat-label" id="stat-farmers">Total Farmers</div>
+        </div>
+        <div class="stat-item" onclick="viewAllAlerts()">
+            <div class="stat-value" id="alert-count">0</div>
+            <div class="stat-label" id="stat-alerts">Alerts</div>
+        </div>
+        <div class="stat-item" onclick="viewTodayAlerts()">
+            <div class="stat-value" id="today-count">0</div>
+            <div class="stat-label" id="stat-today">Today's Alerts</div>
+        </div>
+    </div>
+
+    <!-- Home Page -->
+    <div id="home-page" class="page active-page">
+        <div class="weather-card" onclick="refreshWeather()">
+            <div class="weather-main">
+                <div>
+                    <div class="temp" id="temperature">--°C</div>
+                    <div id="weather-desc">Loading...</div>
+                    <div class="humidity" id="humidity">--%</div>
+                </div>
+                <div class="weather-icon" id="weather-icon">🌤️</div>
+            </div>
+            <div class="forecast" id="forecast">
+                <div class="forecast-item" onclick="showDayDetails(0, event)">
+                    <div id="forecast-day1">Mon</div>
+                    <span class="forecast-temp" id="forecast-temp1">-°</span>
+                </div>
+                <div class="forecast-item" onclick="showDayDetails(1, event)">
+                    <div id="forecast-day2">Tue</div>
+                    <span class="forecast-temp" id="forecast-temp2">-°</span>
+                </div>
+                <div class="forecast-item" onclick="showDayDetails(2, event)">
+                    <div id="forecast-day3">Wed</div>
+                    <span class="forecast-temp" id="forecast-temp3">-°</span>
+                </div>
+                <div class="forecast-item" onclick="showDayDetails(3, event)">
+                    <div id="forecast-day4">Thu</div>
+                    <span class="forecast-temp" id="forecast-temp4">-°</span>
+                </div>
+                <div class="forecast-item" onclick="showDayDetails(4, event)">
+                    <div id="forecast-day5">Fri</div>
+                    <span class="forecast-temp" id="forecast-temp5">-°</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-title">
+            <span id="select-crop-title">🌾 Select Crop</span>
+        </div>
+
+        <div class="crop-selector" id="cropSelector">
+            <button class="crop-btn active" onclick="selectCrop('maize')" id="crop-maize">🌽 Maize</button>
+            <button class="crop-btn" onclick="selectCrop('bananas')" id="crop-bananas">🍌 Bananas</button>
+            <button class="crop-btn" onclick="selectCrop('beans')" id="crop-beans">🫘 Beans</button>
+            <button class="crop-btn" onclick="selectCrop('general')" id="crop-general">🌱 General</button>
+        </div>
+
+        <div class="section-title">
+            <span id="risk-alerts-title">⚠️ Risk Alerts</span>
+            <span class="view-all" onclick="viewAllAlerts()" id="view-all-link">View All →</span>
+        </div>
+
+        <div id="alerts-container" class="alerts-container">
+            <div class="loading-spinner"></div>
+            <div class="loading">Loading alerts...</div>
+        </div>
+
+        <div class="section-title">
+            <span id="weather-trend-title">📊 Weather Trend</span>
+            <span class="view-all" onclick="refreshWeatherHistory()">↻ Refresh</span>
+        </div>
+
+        <div class="chart-card" onclick="showWeatherDetails()">
+            <div class="chart-header">
+                <span class="chart-title" id="last-7-days">Last 7 Days</span>
+                <span class="chart-trend" id="weather-trend">--</span>
+            </div>
+            <div class="chart" id="weather-chart"></div>
+            <div id="weather-summary" class="weather-summary"></div>
+        </div>
+    </div>
+
+    <!-- Alerts Page -->
+    <div id="alerts-page" class="page">
+        <div class="section-title">
+            <span id="all-alerts-title">📋 All Alerts</span>
+            <span class="view-all" onclick="refreshAlerts()">↻ Refresh</span>
+        </div>
+        
+        <div class="crop-selector" id="historyCropSelector">
+            <button class="crop-btn active" onclick="loadHistory('maize')" id="history-maize">🌽 Maize</button>
+            <button class="crop-btn" onclick="loadHistory('bananas')" id="history-bananas">🍌 Bananas</button>
+            <button class="crop-btn" onclick="loadHistory('beans')" id="history-beans">🫘 Beans</button>
+            <button class="crop-btn" onclick="loadHistory('all')" id="history-all">📋 All</button>
+        </div>
+
+        <div id="history-container" class="history-list">
+            <div class="loading-spinner"></div>
+            <div class="loading">Loading history...</div>
+        </div>
+    </div>
+
+    <!-- Forum Page -->
+    <div id="forum-page" class="page">
+        <div class="forum-container">
+            <div class="forum-header">
+                <div class="forum-title">🌾 Farmer Community Forum</div>
+                <button class="ask-btn" onclick="showAskQuestion()">+ Ask Question</button>
+            </div>
+            
+            <div class="forum-filters">
+                <button class="filter-btn active" onclick="filterQuestions('all')">All Crops</button>
+                <button class="filter-btn" onclick="filterQuestions('maize')">🌽 Maize</button>
+                <button class="filter-btn" onclick="filterQuestions('bananas')">🍌 Bananas</button>
+                <button class="filter-btn" onclick="filterQuestions('beans')">🫘 Beans</button>
+                <button class="filter-btn" onclick="filterQuestions('general')">🌱 General</button>
+            </div>
+            
+            <div id="questions-list" class="questions-list">
+                <div class="loading-spinner"></div>
+            </div>
+            
+            <div class="pagination" id="forum-pagination"></div>
+        </div>
+    </div>
+
+    <!-- Ask Question Page -->
+    <div id="ask-question-page" class="page">
+        <div class="ask-form">
+            <div class="forum-header" style="margin-bottom: 20px;">
+                <div class="form-title">📝 Ask a Question</div>
+                <button class="btn-outline btn-small" onclick="showPage('forum')">Cancel</button>
+            </div>
+            
+            <div class="form-group">
+                <label>Crop *</label>
+                <select id="question-crop" class="question-input">
+                    <option value="maize">🌽 Maize</option>
+                    <option value="bananas">🍌 Bananas</option>
+                    <option value="beans">🫘 Beans</option>
+                    <option value="general">🌱 General</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>Question Title *</label>
+                <input type="text" id="question-title" class="question-input" placeholder="e.g., How to control Fall Armyworm?">
+            </div>
+            
+            <div class="form-group">
+                <label>Question Details *</label>
+                <textarea id="question-details" class="question-textarea" placeholder="Describe your problem in detail..."></textarea>
+            </div>
+            
+            <button class="btn" onclick="submitQuestion()">Post Question</button>
+        </div>
+    </div>
+
+    <!-- Question Detail Page -->
+    <div id="question-detail-page" class="page">
+        <div class="forum-header" style="margin: 15px;">
+            <button class="btn-outline btn-small" onclick="showPage('forum')">← Back to Forum</button>
+        </div>
+        
+        <div id="question-detail-container" class="question-detail">
+            <div class="loading-spinner"></div>
+        </div>
+        
+        <div class="answers-section" id="answers-container"></div>
+        
+        <div class="ask-form" id="answer-form" style="margin-top: 20px;">
+            <div class="form-title">💬 Your Answer</div>
+            <textarea id="answer-text" class="question-textarea" placeholder="Write your answer..."></textarea>
+            <button class="btn" onclick="submitAnswer()">Post Answer</button>
+        </div>
+    </div>
+
+    <!-- Profile Page -->
+    <div id="profile-page" class="page">
+        <div class="register-form">
+            <h4 id="register-title">👤 Farmer Registration / Login</h4>
+            
+            <div id="profile-view" class="profile-view" style="display: none;">
+                <h5>Welcome, <span id="profile-name-display"></span>!</h5>
+                <p>📞 Phone: <span id="profile-phone-display"></span></p>
+                <p>🌾 Crop: <span id="profile-crop-display"></span></p>
+                <p>📍 Village: <span id="profile-village-display"></span></p>
+                <button class="btn-outline btn-small" onclick="logout()" style="margin-top: 10px;">Logout</button>
+            </div>
+            
+            <div id="login-form" style="display: block;">
+                <div class="form-group">
+                    <label>Phone Number</label>
+                    <input type="tel" id="login-phone" placeholder="07XXXXXXXX">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="login-password" placeholder="Your password">
+                </div>
+                <button class="btn" onclick="login()">Login</button>
+                <hr style="margin: 20px 0;">
+                <h5>New Farmer? Register here:</h5>
+            </div>
+            
+            <div class="form-group">
+                <label id="label-name">Full Name</label>
+                <input type="text" id="reg-name" placeholder="Enter your name">
+            </div>
+            
+            <div class="form-group">
+                <label id="label-phone">Phone Number</label>
+                <input type="tel" id="reg-phone" placeholder="07XXXXXXXX">
+            </div>
+            
+            <div class="form-group">
+                <label id="label-village">Village</label>
+                <input type="text" id="reg-village" placeholder="Your village">
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label id="label-main-crop">Main Crop</label>
+                    <select id="reg-crop">
+                        <option value="maize" id="option-maize">Maize</option>
+                        <option value="bananas" id="option-bananas">Bananas</option>
+                        <option value="beans" id="option-beans">Beans</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label id="label-farm-size">Farm Size (acres)</label>
+                    <input type="number" id="reg-size" step="0.1" placeholder="e.g., 2.5">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label id="label-other-crops">Other Crops</label>
+                <input type="text" id="reg-other" placeholder="e.g., coffee, cassava">
+            </div>
+            
+            <div class="form-group">
+                <label id="label-language">Preferred Language</label>
+                <select id="reg-language">
+                    <option value="en" id="option-en">English</option>
+                    <option value="rn" id="option-rn">Runyankole</option>
+                </select>
+            </div>
+            
+            <button class="btn" onclick="registerFarmer()" id="register-btn">Register / Update</button>
+            
+            <div class="stats-container">
+                <h5 id="your-stats-title">📊 Your Stats</h5>
+                <div class="stats-grid">
+                    <div class="stat-box" onclick="loadFarmerAlerts()">
+                        <div class="stat-number" id="profile-alerts">0</div>
+                        <div class="stat-label-small" id="stats-alerts">Alerts</div>
+                    </div>
+                    <div class="stat-box" onclick="markAllAsRead()">
+                        <div class="stat-number" id="profile-read">0</div>
+                        <div class="stat-label-small" id="stats-read">Read</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number" id="profile-feedback">0</div>
+                        <div class="stat-label-small" id="stats-feedback">Feedback</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Password Change Section -->
+            <div id="password-change-section" class="password-change-section" style="display: none;">
+                <h5 style="margin-bottom: 15px;">🔐 Change Password</h5>
+                <div id="password-change-form" style="display: none;">
+                    <div class="form-group">
+                        <label>Current Password</label>
+                        <input type="password" id="current-password" style="width:100%; padding:12px; border:2px solid #e0e0e0; border-radius:10px;">
+                    </div>
+                    <div class="form-group">
+                        <label>New Password</label>
+                        <input type="password" id="new-password" style="width:100%; padding:12px; border:2px solid #e0e0e0; border-radius:10px;">
+                    </div>
+                    <div class="form-group">
+                        <label>Confirm New Password</label>
+                        <input type="password" id="confirm-password" style="width:100%; padding:12px; border:2px solid #e0e0e0; border-radius:10px;">
+                    </div>
+                    <button class="btn" onclick="changePassword()" style="margin-top: 10px;">Update Password</button>
+                </div>
+                <button class="btn-outline btn-small" onclick="togglePasswordForm()" id="show-password-btn">Change Password</button>
+            </div>
+            
+            <div style="margin-top: 20px; text-align: center;">
+                <small style="color: #999;" id="sms-note">Registered farmers receive SMS alerts</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div class="modal" id="login-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4>🔐 Farmer Login</h4>
+                <span class="modal-close" onclick="closeLoginModal()">&times;</span>
+            </div>
+            <div class="form-group">
+                <label>Phone Number</label>
+                <input type="tel" id="modal-phone" placeholder="07XXXXXXXX">
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="modal-password" placeholder="Your password">
+            </div>
+            <button class="btn" onclick="loginModal()">Login</button>
+            <p style="margin-top: 15px; text-align: center; font-size: 0.8rem;">
+                New farmer? <a href="#" onclick="closeLoginModal(); showPage('profile');">Register here</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- Farmers List Modal -->
+    <div class="modal" id="farmers-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4>👥 Farmers List</h4>
+                <span class="modal-close" onclick="closeFarmersModal()">&times;</span>
+            </div>
+            <div id="farmers-list" style="max-height: 300px; overflow-y: auto;"></div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast" style="display: none;"></div>
+
+    <!-- Bottom Navigation -->
+    <div class="nav">
+        <div class="nav-item active" onclick="showPage('home')" id="nav-home">
+            <i>🏠</i>
+            <span>Home</span>
+        </div>
+        <div class="nav-item" onclick="showPage('alerts')" id="nav-alerts">
+            <i>🔔</i>
+            <span>Alerts</span>
+            <span class="badge" id="alert-badge" style="display: none;">0</span>
+        </div>
+        <div class="nav-item" onclick="showPage('forum')" id="nav-forum">
+            <i>🌾</i>
+            <span>Forum</span>
+        </div>
+        <div class="nav-item" onclick="showPage('profile')" id="nav-profile">
+            <i>👤</i>
+            <span>Profile</span>
+        </div>
+    </div>
+
+    <script>
+        // App state
+        let currentCrop = 'maize';
+        let currentLang = 'en';
+        let currentFarmer = null;
+        let currentQuestionId = null;
+        let currentCropFilter = 'all';
+        
+        // Translations
+        const translations = {
+            en: {
+                'select_crop': 'Select Crop',
+                'risk_alerts': 'Risk Alerts',
+                'view_all': 'View All',
+                'weather_trend': 'Weather Trend',
+                'register': 'Register / Update',
+                'alerts': 'Alerts',
+                'home': 'Home',
+                'profile': 'Profile',
+                'forum': 'Forum',
+                'maize': 'Maize',
+                'bananas': 'Bananas',
+                'beans': 'Beans',
+                'general': 'General',
+                'high_risk': 'HIGH RISK',
+                'medium_risk': 'MEDIUM RISK',
+                'low_risk': 'LOW RISK',
+                'prevention': 'Prevention',
+                'treatment': 'Treatment',
+                'no_active_alerts': 'No active alerts',
+                'total_farmers': 'Total Farmers',
+                'today_alerts': "Today's Alerts"
+            },
+            rn: {
+                'select_crop': 'Tondeka Ekihimba',
+                'risk_alerts': 'Obwengye bw\'Endwadde',
+                'view_all': 'Reba Byona',
+                'weather_trend': 'Ebiragiro By\'Obudde',
+                'register': 'Eriyisha',
+                'alerts': 'Obwengye',
+                'home': 'Eka',
+                'profile': 'Ebikukwatako',
+                'forum': 'Okugyenderanamu',
+                'maize': 'Kasooli',
+                'bananas': 'Bitooke',
+                'beans': 'Bihimba',
+                'general': 'Byona',
+                'high_risk': 'AKAWANGO AKAINGI',
+                'medium_risk': 'AKAWANGO AKAKATI',
+                'low_risk': 'AKAWANGO AKAKE',
+                'prevention': 'Okwirinda',
+                'treatment': 'Okujanjaba',
+                'no_active_alerts': 'Tihariho bwengye',
+                'total_farmers': 'Abalima Bona',
+                'today_alerts': 'Obwengye Bw\'Erizooba'
+            }
+        };
+        
+        function showToast(message, duration = 2000) {
+            let toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.style.display = 'block';
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, duration);
+        }
+        
+        // ==================== AUTHENTICATION FUNCTIONS ====================
+        
+        function checkAuth() {
+            fetch('/api/auth/check')
+                .then(r => r.json())
+                .then(data => {
+                    if (data.authenticated) {
+                        document.getElementById('login-btn').textContent = 'Logout';
+                        document.getElementById('login-btn').onclick = function() { logout(); };
+                        document.getElementById('login-form').style.display = 'none';
+                        document.getElementById('profile-view').style.display = 'block';
+                        document.getElementById('password-change-section').style.display = 'block';
+                        loadProfileData();
+                    } else {
+                        document.getElementById('login-btn').textContent = 'Login';
+                        document.getElementById('login-btn').onclick = function() { showLoginModal(); };
+                        document.getElementById('login-form').style.display = 'block';
+                        document.getElementById('profile-view').style.display = 'none';
+                        document.getElementById('password-change-section').style.display = 'none';
+                        // Clear profile display
+                        document.getElementById('profile-name-display').textContent = '';
+                        document.getElementById('profile-phone-display').textContent = '';
+                        document.getElementById('profile-crop-display').textContent = '';
+                        document.getElementById('profile-village-display').textContent = '';
+                        // Clear registration form
+                        document.getElementById('reg-name').value = '';
+                        document.getElementById('reg-phone').value = '';
+                        document.getElementById('reg-village').value = '';
+                        document.getElementById('reg-crop').value = 'maize';
+                        document.getElementById('reg-size').value = '';
+                        document.getElementById('reg-other').value = '';
+                        document.getElementById('reg-language').value = 'en';
+                        // Clear stats
+                        document.getElementById('profile-alerts').textContent = '0';
+                        document.getElementById('profile-read').textContent = '0';
+                        document.getElementById('profile-feedback').textContent = '0';
+                    }
+                });
+        }
+        
+        function loadProfileData() {
+            let phone = localStorage.getItem('farmer_phone');
+            if (phone) {
+                fetch('/api/farmer/' + phone)
+                    .then(r => r.json())
+                    .then(farmer => {
+                        if (!farmer.error) {
+                            currentFarmer = farmer;
+                            document.getElementById('profile-name-display').textContent = farmer.name || '';
+                            document.getElementById('profile-phone-display').textContent = farmer.phone || '';
+                            document.getElementById('profile-crop-display').textContent = farmer.main_crop || 'Not set';
+                            document.getElementById('profile-village-display').textContent = farmer.village || 'Not set';
+                            
+                            // Fill registration form with current data
+                            document.getElementById('reg-name').value = farmer.name || '';
+                            document.getElementById('reg-phone').value = farmer.phone || '';
+                            document.getElementById('reg-village').value = farmer.village || '';
+                            document.getElementById('reg-crop').value = farmer.main_crop || 'maize';
+                            document.getElementById('reg-size').value = farmer.farm_size || '';
+                            document.getElementById('reg-other').value = farmer.other_crops || '';
+                            document.getElementById('reg-language').value = farmer.language || 'en';
+                            
+                            // Load farmer stats
+                            fetch('/api/farmer/' + farmer.id + '/stats')
+                                .then(r => r.json())
+                                .then(stats => {
+                                    document.getElementById('profile-alerts').textContent = stats.total_alerts || 0;
+                                    document.getElementById('profile-read').textContent = stats.read_count || 0;
+                                    document.getElementById('profile-feedback').textContent = stats.feedback_count || 0;
+                                });
+                        }
+                    });
+            }
+        }
+        
+        function login() {
+            const phone = document.getElementById('login-phone').value;
+            const password = document.getElementById('login-password').value;
+            
+            if (!phone) {
+                alert('Please enter your phone number');
+                return;
+            }
+            
+            fetch('/api/auth/login', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({phone, password})
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    localStorage.setItem('farmer_phone', phone);
+                    if (data.first_login) {
+                        let newPass = prompt('Set your password for future logins:');
+                        if (newPass && newPass.length >= 4) {
+                            fetch('/api/auth/set-password', {
+                                method: 'POST',
+                                headers: {'Content-Type': 'application/json'},
+                                body: JSON.stringify({phone, token: data.token, password: newPass})
+                            })
+                            .then(() => {
+                                alert('Password set! Please login again.');
+                                location.reload();
+                            });
+                        } else {
+                            alert('Password must be at least 4 characters');
+                        }
+                    } else {
+                        alert('Login successful!');
+                        checkAuth();
+                        showToast('Welcome back ' + data.farmer.name + '!');
+                        showPage('home');
+                    }
+                } else {
+                    alert('Invalid phone number or password');
+                }
+            })
+            .catch(error => {
+                console.error('Login error:', error);
+                alert('Login failed. Please try again.');
+            });
+        }
+        
+        function loginModal() {
+            const phone = document.getElementById('modal-phone').value;
+            const password = document.getElementById('modal-password').value;
+            
+            if (!phone) {
+                alert('Please enter your phone number');
+                return;
+            }
+            
+            fetch('/api/auth/login', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({phone, password})
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    localStorage.setItem('farmer_phone', phone);
+                    if (data.first_login) {
+                        let newPass = prompt('Set your password for future logins:');
+                        if (newPass && newPass.length >= 4) {
+                            fetch('/api/auth/set-password', {
+                                method: 'POST',
+                                headers: {'Content-Type': 'application/json'},
+                                body: JSON.stringify({phone, token: data.token, password: newPass})
+                            })
+                            .then(() => {
+                                alert('Password set! Please login again.');
+                                closeLoginModal();
+                                location.reload();
+                            });
+                        } else {
+                            alert('Password must be at least 4 characters');
+                        }
+                    } else {
+                        alert('Login successful!');
+                        closeLoginModal();
+                        checkAuth();
+                        showToast('Welcome back ' + data.farmer.name + '!');
+                        showPage('home');
+                    }
+                } else {
+                    alert('Invalid phone number or password');
+                }
+            });
+        }
+        
+        function logout() {
+            fetch('/api/auth/logout', {method: 'POST'})
+                .then(() => {
+                    localStorage.removeItem('farmer_phone');
+                    currentFarmer = null;
+                    sessionStorage.clear();
+                    // Clear all displayed data
+                    document.getElementById('profile-view').style.display = 'none';
+                    document.getElementById('login-form').style.display = 'block';
+                    document.getElementById('login-phone').value = '';
+                    document.getElementById('login-password').value = '';
+                    document.getElementById('reg-name').value = '';
+                    document.getElementById('reg-phone').value = '';
+                    document.getElementById('reg-village').value = '';
+                    document.getElementById('reg-crop').value = 'maize';
+                    document.getElementById('reg-size').value = '';
+                    document.getElementById('reg-other').value = '';
+                    document.getElementById('reg-language').value = 'en';
+                    document.getElementById('profile-alerts').textContent = '0';
+                    document.getElementById('profile-read').textContent = '0';
+                    document.getElementById('profile-feedback').textContent = '0';
+                    document.getElementById('profile-name-display').textContent = '';
+                    document.getElementById('profile-phone-display').textContent = '';
+                    document.getElementById('profile-crop-display').textContent = '';
+                    document.getElementById('profile-village-display').textContent = '';
+                    document.getElementById('password-change-form').style.display = 'none';
+                    document.getElementById('show-password-btn').textContent = 'Change Password';
+                    
+                    // Update login button
+                    document.getElementById('login-btn').textContent = 'Login';
+                    document.getElementById('login-btn').onclick = function() { showLoginModal(); };
+                    
+                    showToast('Logged out successfully');
+                    showPage('home');
+                    location.reload();
+                })
+                .catch(error => {
+                    console.error('Logout error:', error);
+                    showToast('Error logging out');
+                });
+        }
+        
+        function showLoginModal() {
+            document.getElementById('modal-phone').value = '';
+            document.getElementById('modal-password').value = '';
+            document.getElementById('login-modal').classList.add('active');
+        }
+        
+        function closeLoginModal() {
+            document.getElementById('login-modal').classList.remove('active');
+        }
+        
+        // ==================== PASSWORD CHANGE FUNCTIONS ====================
+        
+        function togglePasswordForm() {
+            const form = document.getElementById('password-change-form');
+            const btn = document.getElementById('show-password-btn');
+            if (form.style.display === 'none' || form.style.display === '') {
+                form.style.display = 'block';
+                btn.textContent = 'Cancel';
+            } else {
+                form.style.display = 'none';
+                btn.textContent = 'Change Password';
+                document.getElementById('current-password').value = '';
+                document.getElementById('new-password').value = '';
+                document.getElementById('confirm-password').value = '';
+            }
+        }
+        
+        function changePassword() {
+            const currentPassword = document.getElementById('current-password').value;
+            const newPassword = document.getElementById('new-password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+            
+            if (!currentPassword || !newPassword || !confirmPassword) {
+                alert('Please fill all fields');
+                return;
+            }
+            
+            if (newPassword !== confirmPassword) {
+                alert('New passwords do not match');
+                return;
+            }
+            
+            if (newPassword.length < 4) {
+                alert('New password must be at least 4 characters');
+                return;
+            }
+            
+            const phone = localStorage.getItem('farmer_phone');
+            
+            fetch('/api/auth/change-password', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    phone: phone,
+                    current_password: currentPassword,
+                    new_password: newPassword
+                })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Password changed successfully!');
+                    document.getElementById('current-password').value = '';
+                    document.getElementById('new-password').value = '';
+                    document.getElementById('confirm-password').value = '';
+                    document.getElementById('password-change-form').style.display = 'none';
+                    document.getElementById('show-password-btn').textContent = 'Change Password';
+                } else {
+                    alert(data.error || 'Failed to change password');
+                }
+            })
+            .catch(error => {
+                console.error('Password change error:', error);
+                alert('Error changing password');
+            });
+        }
+        
+        // ==================== PAGE FUNCTIONS ====================
+        
+        function showPage(page) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
+            document.getElementById(page + '-page').classList.add('active-page');
+            
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            if (page === 'home') document.getElementById('nav-home').classList.add('active');
+            else if (page === 'alerts') document.getElementById('nav-alerts').classList.add('active');
+            else if (page === 'forum') document.getElementById('nav-forum').classList.add('active');
+            else if (page === 'profile') document.getElementById('nav-profile').classList.add('active');
+            
+            if (page === 'home') {
+                loadWeather();
+                loadAlerts(currentCrop);
+                loadWeatherHistory();
+                loadStats();
+            } else if (page === 'alerts') {
+                loadHistory('all');
+            } else if (page === 'forum') {
+                loadQuestions();
+            }
+        }
+        
+        function toggleLanguage() {
+            currentLang = currentLang === 'en' ? 'rn' : 'en';
+            document.getElementById('lang-btn').textContent = 
+                currentLang === 'en' ? '🇺🇬 Runyankole' : '🇬🇧 English';
+            updateUIText();
+            if (document.getElementById('home-page').classList.contains('active-page')) {
+                loadAlerts(currentCrop);
+            }
+        }
+        
+        function updateUIText() {
+            const t = translations[currentLang];
+            const elements = {
+                'select-crop-title': '🌾 ' + t.select_crop,
+                'risk-alerts-title': '⚠️ ' + t.risk_alerts,
+                'view-all-link': t.view_all + ' →',
+                'weather-trend-title': '📊 ' + t.weather_trend,
+                'register-title': '👤 ' + t.register,
+                'crop-maize': '🌽 ' + t.maize,
+                'crop-bananas': '🍌 ' + t.bananas,
+                'crop-beans': '🫘 ' + t.beans,
+                'crop-general': '🌱 ' + t.general,
+                'history-maize': '🌽 ' + t.maize,
+                'history-bananas': '🍌 ' + t.bananas,
+                'history-beans': '🫘 ' + t.beans,
+                'history-all': '📋 ' + t.all_alerts,
+                'stat-farmers': t.total_farmers,
+                'stat-alerts': t.alerts,
+                'stat-today': t.today_alerts
+            };
+            for (let [id, text] of Object.entries(elements)) {
+                let element = document.getElementById(id);
+                if (element) element.innerHTML = text;
+            }
+        }
+        
+        // ==================== STATS FUNCTIONS ====================
+        
+        function viewFarmers() {
+            showToast('📋 Loading farmers list...');
+            fetch('/api/farmers/list')
+                .then(r => r.json())
+                .then(farmers => {
+                    let list = document.getElementById('farmers-list');
+                    if (farmers.length === 0) {
+                        list.innerHTML = '<div style="padding:20px; text-align:center;">No farmers registered</div>';
+                    } else {
+                        let html = '<div style="margin-bottom:10px;">Total: ' + farmers.length + ' farmers</div>';
+                        farmers.forEach(f => {
+                            html += `<div style="padding:10px; border-bottom:1px solid #eee; display:flex; justify-content:space-between;">
+                                        <span>${f.name}</span>
+                                        <span style="color:#2E7D32;">${f.main_crop}</span>
+                                    </div>`;
+                        });
+                        list.innerHTML = html;
+                    }
+                    document.getElementById('farmers-modal').classList.add('active');
+                });
+        }
+        
+        function closeFarmersModal() {
+            document.getElementById('farmers-modal').classList.remove('active');
+        }
+        
+        function viewAllAlerts() {
+            showPage('alerts');
+        }
+        
+        function viewTodayAlerts() {
+            let count = document.getElementById('today-count').textContent;
+            alert(`Today's Alerts: ${count}`);
+        }
+        
+        // ==================== WEATHER FUNCTIONS ====================
+        
+        function loadWeather() {
+            fetch('/api/weather')
+                .then(r => r.json())
+                .then(data => {
+                    document.getElementById('temperature').textContent = Math.round(data.current.temp) + '°C';
+                    document.getElementById('weather-desc').textContent = data.current.condition;
+                    document.getElementById('humidity').innerHTML = 'Humidity: ' + data.current.humidity + '%';
+                    document.getElementById('weather-icon').textContent = data.current.icon || '🌤️';
+                })
+                .catch(error => console.error('Weather error:', error));
+        }
+        
+        function refreshWeather() {
+            loadWeather();
+            showToast('Weather updated');
+        }
+        
+        function showDayDetails(index, event) {
+            event.stopPropagation();
+            let day = document.getElementById(`forecast-day${index+1}`).textContent;
+            let temp = document.getElementById(`forecast-temp${index+1}`).textContent;
+            showToast(`${day}: ${temp}`);
+        }
+        
+        function loadWeatherHistory() {
+            fetch('/api/weather/history')
+                .then(r => r.json())
+                .then(data => {
+                    let days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+                    let html = '';
+                    data.forEach((day, i) => {
+                        let temp = day.temp;
+                        let height = 40 + (temp / 30) * 80;
+                        html += `<div class="chart-bar-wrapper">
+                            <div class="chart-bar" style="height: ${height}px">
+                                <span class="chart-value">${Math.round(temp)}°</span>
+                            </div>
+                            <div class="chart-label">${days[i]}</div>
+                        </div>`;
+                    });
+                    document.getElementById('weather-chart').innerHTML = html;
+                    document.getElementById('weather-trend').textContent = '📈 Rising';
+                    let avgTemp = data.length ? Math.round(data.reduce((s, d) => s + d.temp, 0) / data.length) : 25;
+                    document.getElementById('weather-summary').innerHTML = `<div class="summary-item">🌡️ Avg Temp: ${avgTemp}°C</div>`;
+                })
+                .catch(() => {
+                    let days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+                    let html = '';
+                    for (let i = 0; i < 7; i++) {
+                        let temp = 24 + Math.floor(Math.random() * 3);
+                        html += `<div class="chart-bar-wrapper">
+                            <div class="chart-bar" style="height: ${60 + i*3}px">
+                                <span class="chart-value">${temp}°</span>
+                            </div>
+                            <div class="chart-label">${days[i]}</div>
+                        </div>`;
+                    }
+                    document.getElementById('weather-chart').innerHTML = html;
+                });
+        }
+        
+        function refreshWeatherHistory() {
+            loadWeatherHistory();
+            showToast('Chart refreshed');
+        }
+        
+        function showWeatherDetails() {
+            showToast('Weather trend for last 7 days');
+        }
+        
+        // ==================== ALERT FUNCTIONS ====================
+        
+        function selectCrop(crop) {
+            currentCrop = crop;
+            document.querySelectorAll('.crop-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+            loadAlerts(crop);
+        }
+        
+        function loadAlerts(crop) {
+            fetch('/api/alerts/' + crop)
+                .then(r => r.json())
+                .then(alerts => {
+                    let html = '';
+                    if (alerts.length === 0) {
+                        html = '<div class="alert" style="background:#28a745;">✅ No active alerts</div>';
+                    } else {
+                        alerts.forEach((a, i) => {
+                            let riskClass = a.risk.toLowerCase();
+                            html += `<div class="alert ${riskClass}" onclick="toggleAlertDetails(${i})">
+                                <div class="alert-header">
+                                    <span class="alert-pest">${a.pest}</span>
+                                    <span class="alert-risk">${a.risk}</span>
+                                </div>
+                                <div class="alert-advice">${a.advice}</div>
+                                <div class="alert-details" id="alert-details-${i}">
+                                    <div class="prevention-tip"><strong>🛡️ Prevention:</strong> ${a.prevention || 'Monitor crops regularly'}</div>
+                                    <div class="treatment-tip"><strong>💊 Treatment:</strong> ${a.treatment || 'Consult extension officer'}</div>
+                                </div>
+                            </div>`;
+                        });
+                    }
+                    document.getElementById('alerts-container').innerHTML = html;
+                    document.getElementById('alert-badge').textContent = alerts.length;
+                    document.getElementById('alert-badge').style.display = alerts.length ? 'inline' : 'none';
+                })
+                .catch(error => {
+                    console.error('Alerts error:', error);
+                    document.getElementById('alerts-container').innerHTML = '<div class="error-message">Failed to load alerts</div>';
+                });
+        }
+        
+        function toggleAlertDetails(index) {
+            document.querySelectorAll('.alert')[index].classList.toggle('expanded');
+        }
+        
+        function loadHistory(crop) {
+            let url = crop === 'all' ? '/api/alerts/all' : '/api/history/' + crop;
+            fetch(url)
+                .then(r => r.json())
+                .then(alerts => {
+                    let html = '';
+                    if (alerts.length === 0) {
+                        html = '<div style="padding:20px; text-align:center;">No alerts</div>';
+                    } else {
+                        alerts.forEach(a => {
+                            html += `<div class="history-item">
+                                <div>
+                                    <div class="history-pest">${a.pest}</div>
+                                    <div class="history-date">${new Date(a.date).toLocaleString()}</div>
+                                </div>
+                                <span class="history-risk ${a.risk.toLowerCase()}">${a.risk}</span>
+                            </div>`;
+                        });
+                    }
+                    document.getElementById('history-container').innerHTML = html;
+                });
+        }
+        
+        function refreshAlerts() {
+            loadHistory('all');
+        }
+        
+        // ==================== FORUM FUNCTIONS ====================
+        
+        function loadQuestions() {
+            fetch(`/api/questions?page=1&crop=${currentCropFilter}`)
+                .then(r => r.json())
+                .then(data => {
+                    let html = '';
+                    if (data.questions && data.questions.length > 0) {
+                        data.questions.forEach(q => {
+                            html += `<div class="question-card" onclick="viewQuestion(${q.id})">
+                                <div class="question-header" style="display:flex; justify-content:space-between;">
+                                    <span class="question-title">${q.title}</span>
+                                    <span class="question-crop">${q.crop}</span>
+                                </div>
+                                <div class="question-meta">👤 ${q.farmer} • 💬 ${q.answers} answers</div>
+                            </div>`;
+                        });
+                    } else {
+                        html = '<div style="text-align:center; padding:30px;">No questions yet. Be the first to ask!</div>';
+                    }
+                    document.getElementById('questions-list').innerHTML = html;
+                });
+        }
+        
+        function filterQuestions(crop) {
+            currentCropFilter = crop;
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+            loadQuestions();
+        }
+        
+        function showAskQuestion() {
+            if (!currentFarmer) {
+                alert('Please register or login first');
+                showPage('profile');
+                return;
+            }
+            showPage('ask-question');
+        }
+        
+        function submitQuestion() {
+            const data = {
+                crop: document.getElementById('question-crop').value,
+                title: document.getElementById('question-title').value,
+                question: document.getElementById('question-details').value
+            };
+            
+            if (!data.title || !data.question) {
+                alert('Please fill all fields');
+                return;
+            }
+            
+            fetch('/api/questions', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            })
+            .then(r => r.json())
+            .then(result => {
+                if (result.success) {
+                    alert('Question posted successfully!');
+                    showPage('forum');
+                    loadQuestions();
+                }
+            })
+            .catch(() => alert('Failed to post question'));
+        }
+        
+        function viewQuestion(questionId) {
+            currentQuestionId = questionId;
+            showPage('question-detail');
+            
+            fetch(`/api/questions/${questionId}`)
+                .then(r => r.json())
+                .then(q => {
+                    let html = `
+                        <h3>${q.title}</h3>
+                        <div class="question-content">
+                            <p>${q.question}</p>
+                        </div>
+                        <div class="farmer-info" style="display:flex; gap:10px; padding:10px; background:#f0f0f0; border-radius:10px;">
+                            <div style="width:40px; height:40px; background:#2E7D32; border-radius:50%; display:flex; align-items:center; justify-content:center; color:white;">${q.farmer.charAt(0)}</div>
+                            <div>
+                                <div style="font-weight:bold;">${q.farmer}</div>
+                                <div style="font-size:0.8rem; color:#666;">👁️ ${q.views} views</div>
+                            </div>
+                        </div>
+                    `;
+                    document.getElementById('question-detail-container').innerHTML = html;
+                    
+                    let answersHtml = '<h4 style="margin-bottom:15px;">Answers</h4>';
+                    if (q.answers && q.answers.length > 0) {
+                        q.answers.forEach(a => {
+                            answersHtml += `
+                                <div class="answer-card ${a.is_best ? 'best-answer' : ''}">
+                                    ${a.is_best ? '<div class="best-badge">⭐ Best Answer</div>' : ''}
+                                    <p>${a.answer}</p>
+                                    <div class="answer-actions">
+                                        <button class="action-btn ${a.liked ? 'liked' : ''}" onclick="likeAnswer(${a.id})">
+                                            ❤️ ${a.likes}
+                                        </button>
+                                        ${q.farmer_id === currentFarmer?.id && !a.is_best ? 
+                                            `<button class="action-btn" onclick="markBestAnswer(${a.id})">⭐ Mark Best</button>` : ''}
+                                    </div>
+                                </div>
+                            `;
+                        });
+                    } else {
+                        answersHtml += '<p style="text-align:center; color:#999;">No answers yet. Be the first to answer!</p>';
+                    }
+                    document.getElementById('answers-container').innerHTML = answersHtml;
+                });
+        }
+        
+        function submitAnswer() {
+            const answer = document.getElementById('answer-text').value;
+            if (!answer) {
+                alert('Please write an answer');
+                return;
+            }
+            
+            fetch(`/api/questions/${currentQuestionId}/answers`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({answer: answer})
+            })
+            .then(() => {
+                alert('Answer posted!');
+                document.getElementById('answer-text').value = '';
+                viewQuestion(currentQuestionId);
+            })
+            .catch(() => alert('Failed to post answer'));
+        }
+        
+        function likeAnswer(answerId) {
+            fetch(`/api/answers/${answerId}/like`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'}
+            })
+            .then(() => viewQuestion(currentQuestionId))
+            .catch(() => alert('Failed to like'));
+        }
+        
+        function markBestAnswer(answerId) {
+            fetch(`/api/answers/${answerId}/best`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'}
+            })
+            .then(() => viewQuestion(currentQuestionId))
+            .catch(() => alert('Failed to mark best answer'));
+        }
+        
+        // ==================== REGISTRATION FUNCTIONS ====================
+        
+        function registerFarmer() {
+            let data = {
+                name: document.getElementById('reg-name').value,
+                phone: document.getElementById('reg-phone').value,
+                village: document.getElementById('reg-village').value,
+                main_crop: document.getElementById('reg-crop').value,
+                farm_size: document.getElementById('reg-size').value,
+                other_crops: document.getElementById('reg-other').value,
+                language: document.getElementById('reg-language').value
+            };
+            
+            if (!data.name || !data.phone) {
+                alert('Please fill required fields');
+                return;
+            }
+            
+            fetch('/api/register', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            })
+            .then(r => r.json())
+            .then(result => {
+                alert(result.message);
+                localStorage.setItem('farmer_phone', data.phone);
+                checkAuth();
+                loadStats();
+                showToast('Registration successful!');
+                showPage('home');
+            })
+            .catch(() => alert('Registration failed'));
+        }
+        
+        function loadStats() {
+            fetch('/api/stats')
+                .then(r => r.json())
+                .then(data => {
+                    document.getElementById('farmer-count').textContent = data.total_farmers || 0;
+                    document.getElementById('alert-count').textContent = data.total_alerts || 0;
+                    document.getElementById('today-count').textContent = data.today_alerts || 0;
+                })
+                .catch(error => console.error('Stats error:', error));
+        }
+        
+        function loadFarmerAlerts() {
+            if (!currentFarmer) {
+                alert('Please register first');
+                return;
+            }
+            showPage('alerts');
+        }
+        
+        function markAllAsRead() {
+            showToast('All alerts marked as read');
+        }
+        
+        // ==================== INITIALIZATION ====================
+        
+        function init() {
+            checkAuth();
+            loadWeather();
+            loadAlerts('maize');
+            loadWeatherHistory();
+       907859     loadStats();
+            updateUIText();
+        }
+        
+        document.addEventListener('DOMContentLoaded', init);
+        
+        // Auto-refresh every 30 minutes
+        setInterval(() => {
+            if (document.getElementById('home-page').classList.contains('active-page')) {
+                loadWeather();
+                loadAlerts(currentCrop);
+                loadWeatherHistory();
+                loadStats();
+            }
+        }, 1800000);
+    </script>
+</body>
+</html>

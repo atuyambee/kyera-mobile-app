@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kyera USSD Simulator</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: linear-gradient(135deg, #1a472a, #0e2a1a);
+            font-family: 'Courier New', monospace;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .ussd-container {
+            max-width: 450px;
+            width: 100%;
+            background: #0a0a0a;
+            border-radius: 40px;
+            overflow: hidden;
+            border: 1px solid #2e7d32;
+        }
+        .signal-bar {
+            background: #0f0f1a;
+            padding: 5px 15px;
+            display: flex;
+            justify-content: space-between;
+            color: #6c8cac;
+            font-size: 0.7rem;
+        }
+        .phone-top {
+            background: #1a1a2e;
+            padding: 15px;
+            text-align: center;
+            border-bottom: 2px solid #4caf50;
+        }
+        .phone-top h2 { color: #4caf50; font-size: 1.3rem; }
+        .ussd-header {
+            background: #1a1a2e;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            color: #888;
+            font-size: 0.7rem;
+            border-bottom: 1px solid #2e7d32;
+        }
+        .ussd-code { background: #0f3460; padding: 8px 15px; border-radius: 20px; color: #4caf50; }
+        .ussd-screen { background: #0a0a0a; min-height: 400px; padding: 25px; }
+        .ussd-display {
+            background: #000;
+            color: #4caf50;
+            padding: 25px;
+            border-radius: 15px;
+            min-height: 300px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            line-height: 1.6;
+            border: 1px solid #2e7d32;
+        }
+        .ussd-input-area {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        .ussd-input {
+            flex: 1;
+            background: #1a1a2e;
+            border: 1px solid #4caf50;
+            padding: 15px;
+            border-radius: 10px;
+            color: #4caf50;
+            text-align: center;
+            font-size: 1.2rem;
+        }
+        .send-btn {
+            background: #4caf50;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 10px;
+            color: white;
+            cursor: pointer;
+        }
+        .keypad {
+            background: #1a1a2e;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            border-top: 2px solid #4caf50;
+        }
+        .key {
+            background: #2a2a3e;
+            border: none;
+            padding: 15px;
+            border-radius: 15px;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        .key.special { background: #ff9800; }
+        .key.clear { background: #dc3545; }
+    </style>
+</head>
+<body>
+    <div class="ussd-container">
+        <div class="signal-bar"><span>📱 Kyera USSD</span><span>🔋 85% | 📶 4G</span></div>
+        <div class="phone-top"><h2>🌾 Kyera USSD Simulator</h2><div class="ussd-header"><span>📞 Dial: <span class="ussd-code">*4444#</span></span><span>Session: Active</span></div></div>
+        <div class="ussd-screen">
+            <div class="ussd-display" id="ussd-display">Loading...</div>
+            <div class="ussd-input-area"><input type="text" class="ussd-input" id="ussd-input" placeholder="_" onkeypress="if(event.key==='Enter') sendUSSD()"><button class="send-btn" onclick="sendUSSD()">Send</button></div>
+        </div>
+        <div class="keypad">
+            <button class="key" onclick="addDigit('1')">1</button><button class="key" onclick="addDigit('2')">2</button><button class="key" onclick="addDigit('3')">3</button>
+            <button class="key" onclick="addDigit('4')">4</button><button class="key" onclick="addDigit('5')">5</button><button class="key" onclick="addDigit('6')">6</button>
+            <button class="key" onclick="addDigit('7')">7</button><button class="key" onclick="addDigit('8')">8</button><button class="key" onclick="addDigit('9')">9</button>
+            <button class="key special" onclick="addDigit('*')">*</button><button class="key" onclick="addDigit('0')">0</button><button class="key special" onclick="addDigit('#')">#</button>
+            <button class="key clear" onclick="clearInput()">C</button><button class="key" style="grid-column: span 2;" onclick="sendUSSD()">Send</button>
+        </div>
+    </div>
+    <script>
+        let session = { sessionId: 'ussd_' + Date.now(), phone: '+256778624568', text: '' };
+        function addDigit(d) { document.getElementById('ussd-input').value += d; }
+        function clearInput() { document.getElementById('ussd-input').value = ''; }
+        async function sendUSSD() {
+            const input = document.getElementById('ussd-input');
+            const val = input.value;
+            if (!val) return;
+            session.text = session.text ? session.text + '*' + val : val;
+            input.value = '';
+            await makeRequest();
+        }
+        async function makeRequest() {
+            const display = document.getElementById('ussd-display');
+            display.innerHTML = '⏳ Processing...';
+            try {
+                const form = new URLSearchParams();
+                form.append('sessionId', session.sessionId);
+                form.append('phoneNumber', session.phone);
+                form.append('text', session.text);
+                const res = await fetch('/ussd', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: form });
+                const text = await res.text();
+                let result = text;
+                if (text.startsWith('CON')) result = text.substring(4).replace(/\\n/g, '\n');
+                else if (text.startsWith('END')) { result = text.substring(4).replace(/\\n/g, '\n'); session.text = ''; }
+                display.innerHTML = result.replace(/\n/g, '<br>');
+            } catch(e) { display.innerHTML = '❌ Connection error'; }
+        }
+        makeRequest();
+    </script>
+</body>
+</html>

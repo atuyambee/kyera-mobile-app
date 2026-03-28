@@ -1,0 +1,1995 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Kyera Smart Ag</title>
+    <link rel="manifest" href="/static/manifest.json">
+    <meta name="theme-color" content="#2E7D32">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        body {
+            background: #f5f5f5;
+            padding-bottom: 70px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2E7D32, #4CAF50);
+            color: white;
+            padding: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+        
+        .language-toggle {
+            background: rgba(255,255,255,0.2);
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.3s;
+        }
+        
+        .language-toggle:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .stats-bar {
+            background: white;
+            padding: 15px;
+            display: flex;
+            justify-content: space-around;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .stat-item {
+            text-align: center;
+            flex: 1;
+            padding: 10px;
+            border-radius: 10px;
+            transition: background 0.2s;
+            cursor: pointer;
+        }
+        
+        .stat-item:hover {
+            background: #f0f0f0;
+        }
+        
+        .stat-item:active {
+            background: #e0e0e0;
+            transform: scale(0.98);
+        }
+        
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #2E7D32;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .weather-card {
+            background: white;
+            margin: 15px;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .weather-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .weather-main {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .temp {
+            font-size: 48px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .weather-icon {
+            font-size: 48px;
+        }
+        
+        .humidity {
+            color: #666;
+            margin-top: 5px;
+            font-size: 0.9rem;
+        }
+        
+        .forecast {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+        
+        .forecast-item {
+            text-align: center;
+            flex: 1;
+            padding: 5px;
+            border-radius: 8px;
+            transition: background 0.2s;
+            cursor: pointer;
+        }
+        
+        .forecast-item:hover {
+            background: #f5f5f5;
+        }
+        
+        .forecast-temp {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        
+        .section-title {
+            margin: 20px 15px 10px;
+            font-size: 1.1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .view-all {
+            color: #2E7D32;
+            font-size: 0.9rem;
+            cursor: pointer;
+            font-weight: normal;
+            padding: 5px 10px;
+            border-radius: 20px;
+            transition: background 0.2s;
+        }
+        
+        .view-all:hover {
+            background: #e8f5e9;
+        }
+        
+        .crop-selector {
+            display: flex;
+            margin: 15px;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+        }
+        
+        .crop-btn {
+            flex: 0 0 auto;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 25px;
+            background: white;
+            font-size: 1rem;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            transition: all 0.3s;
+        }
+        
+        .crop-btn:hover {
+            background: #f0f0f0;
+            transform: translateY(-2px);
+        }
+        
+        .crop-btn:active {
+            transform: translateY(0);
+        }
+        
+        .crop-btn.active {
+            background: #2E7D32;
+            color: white;
+        }
+        
+        .crop-btn.active:hover {
+            background: #1e5e22;
+        }
+        
+        .alerts-container {
+            margin: 15px;
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            color: white;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .alert:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .alert:active {
+            transform: translateX(2px);
+        }
+        
+        .alert.high {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+        }
+        
+        .alert.medium {
+            background: linear-gradient(135deg, #fd7e14, #e06b0a);
+        }
+        
+        .alert.low {
+            background: linear-gradient(135deg, #ffc107, #e0a800);
+            color: #333;
+        }
+        
+        .alert-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .alert-pest {
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        
+        .alert-risk {
+            background: rgba(255,255,255,0.2);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        
+        .alert-advice {
+            font-size: 0.95rem;
+            margin: 8px 0;
+            opacity: 0.95;
+            line-height: 1.4;
+        }
+        
+        .alert-details {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+        
+        .alert.expanded .alert-details {
+            max-height: 300px;
+            padding: 15px;
+        }
+        
+        .prevention-tip, .treatment-tip {
+            margin-bottom: 12px;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+        
+        .prevention-tip strong, .treatment-tip strong {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.95rem;
+        }
+        
+        .chart-card {
+            background: white;
+            margin: 15px;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .chart-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .chart-title {
+            font-weight: bold;
+            font-size: 1rem;
+        }
+        
+        .chart-trend {
+            font-size: 0.9rem;
+            color: #666;
+            padding: 5px 10px;
+            border-radius: 20px;
+            background: #f5f5f5;
+        }
+        
+        .chart-container {
+            margin-top: 30px;
+            position: relative;
+        }
+        
+        .chart {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            gap: 8px;
+            margin-top: 20px;
+            min-height: 180px;
+        }
+        
+        .chart-bar-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .chart-bar-wrapper:hover {
+            transform: scale(1.05);
+        }
+        
+        .chart-bar {
+            width: 35px;
+            background: linear-gradient(to top, #2E7D32, #4CAF50);
+            border-radius: 8px 8px 0 0;
+            transition: height 0.3s ease;
+            position: relative;
+            cursor: pointer;
+            box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+            min-height: 30px;
+        }
+        
+        .chart-value {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 12px;
+            font-weight: bold;
+            color: #2E7D32;
+            white-space: nowrap;
+            background: rgba(255,255,255,0.9);
+            padding: 2px 6px;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .chart-label {
+            margin-top: 8px;
+            font-size: 12px;
+            font-weight: 500;
+            color: #555;
+        }
+        
+        .chart-humidity {
+            font-size: 10px;
+            color: #2196F3;
+            margin-top: 2px;
+        }
+        
+        .weather-summary {
+            margin-top: 20px;
+            padding: 15px;
+            background: linear-gradient(135deg, #f5f5f5, #e8f5e9);
+            border-radius: 12px;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+            border-left: 4px solid #2E7D32;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .weather-summary:hover {
+            background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+        }
+        
+        .summary-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .summary-icon {
+            font-size: 18px;
+        }
+        
+        .summary-text {
+            font-weight: 500;
+        }
+        
+        .summary-value {
+            font-weight: bold;
+            color: #2E7D32;
+        }
+        
+        .register-form {
+            background: white;
+            margin: 15px;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+        
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #2E7D32;
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .form-row .form-group {
+            flex: 1;
+        }
+        
+        .btn {
+            background: #2E7D32;
+            color: white;
+            border: none;
+            padding: 15px 20px;
+            border-radius: 10px;
+            width: 100%;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
+        }
+        
+        .btn:hover {
+            background: #1e5e22;
+            transform: translateY(-2px);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn-outline {
+            background: white;
+            border: 2px solid #2E7D32;
+            color: #2E7D32;
+        }
+        
+        .btn-outline:hover {
+            background: #2E7D32;
+            color: white;
+        }
+        
+        .history-list {
+            background: white;
+            margin: 15px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        .history-item {
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.2s;
+            cursor: pointer;
+        }
+        
+        .history-item:hover {
+            background: #f5f5f5;
+        }
+        
+        .history-item:active {
+            background: #e0e0e0;
+        }
+        
+        .history-item:last-child {
+            border-bottom: none;
+        }
+        
+        .history-pest {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .history-risk {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .history-risk.high { background: #dc3545; }
+        .history-risk.medium { background: #fd7e14; }
+        .history-risk.low { background: #ffc107; color: #333; }
+        
+        .history-date {
+            font-size: 0.75rem;
+            color: #999;
+            margin-top: 4px;
+        }
+        
+        .stats-container {
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 2px solid #f0f0f0;
+        }
+        
+        .stats-grid {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 15px;
+            gap: 10px;
+        }
+        
+        .stat-box {
+            flex: 1;
+            text-align: center;
+            padding: 15px 5px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .stat-box:hover {
+            background: #e8f5e9;
+            transform: translateY(-2px);
+        }
+        
+        .stat-box:active {
+            transform: translateY(0);
+        }
+        
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #2E7D32;
+            line-height: 1.2;
+        }
+        
+        .stat-label-small {
+            font-size: 0.8rem;
+            color: #666;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            width: 100%;
+            max-width: 400px;
+            border-radius: 20px;
+            padding: 25px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease;
+        }
+        
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .modal-header h4 {
+            font-size: 1.3rem;
+            color: #333;
+        }
+        
+        .modal-close {
+            font-size: 28px;
+            cursor: pointer;
+            color: #999;
+            transition: color 0.2s;
+        }
+        
+        .modal-close:hover {
+            color: #333;
+        }
+        
+        .rating {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            gap: 5px;
+        }
+        
+        .rating-star {
+            font-size: 35px;
+            cursor: pointer;
+            color: #ddd;
+            transition: color 0.2s, transform 0.2s;
+        }
+        
+        .rating-star:hover {
+            transform: scale(1.1);
+            color: #ffc107;
+        }
+        
+        .rating-star.selected {
+            color: #ffc107;
+        }
+        
+        .nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            display: flex;
+            padding: 10px 0;
+            border-radius: 20px 20px 0 0;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.1);
+            z-index: 100;
+        }
+        
+        .nav-item {
+            flex: 1;
+            text-align: center;
+            padding: 12px;
+            cursor: pointer;
+            color: #999;
+            transition: all 0.3s;
+            position: relative;
+            border-radius: 10px;
+            margin: 0 5px;
+        }
+        
+        .nav-item:hover {
+            background: #f5f5f5;
+            color: #2E7D32;
+        }
+        
+        .nav-item:active {
+            background: #e0e0e0;
+            transform: scale(0.95);
+        }
+        
+        .nav-item.active {
+            color: #2E7D32;
+            background: #e8f5e9;
+        }
+        
+        .nav-item i {
+            font-size: 24px;
+            display: block;
+            margin-bottom: 4px;
+        }
+        
+        .nav-item span {
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .badge {
+            position: absolute;
+            top: 0;
+            right: 15px;
+            background: #dc3545;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 10px;
+            font-weight: bold;
+        }
+        
+        .page {
+            display: none;
+        }
+        
+        .page.active-page {
+            display: block;
+        }
+        
+        .loading-spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #2E7D32;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px;
+            text-align: center;
+            font-weight: 500;
+            border-left: 5px solid #dc3545;
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 14px;
+            z-index: 1000;
+            animation: fadeInOut 2s ease;
+        }
+        
+        @keyframes fadeInOut {
+            0% { opacity: 0; bottom: 60px; }
+            10% { opacity: 1; bottom: 80px; }
+            90% { opacity: 1; bottom: 80px; }
+            100% { opacity: 0; bottom: 60px; }
+        }
+        
+        .farmers-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .farmer-item {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .farmer-item:last-child {
+            border-bottom: none;
+        }
+        
+        .farmer-name {
+            font-weight: 500;
+        }
+        
+        .farmer-crop {
+            color: #2E7D32;
+            font-size: 0.9rem;
+        }
+        
+        @media (prefers-color-scheme: dark) {
+            body { background: #121212; color: #eee; }
+            .weather-card, .crop-btn, .register-form, .history-list, .chart-card,
+            .stats-bar, .nav, .modal-content {
+                background: #1e1e1e;
+                color: #eee;
+                border-color: #333;
+            }
+            .crop-btn { color: #eee; background: #2d2d2d; }
+            .crop-btn:hover { background: #3d3d3d; }
+            .crop-btn.active { background: #4CAF50; color: white; }
+            .stat-value { color: #4CAF50; }
+            .stat-label, .chart-label, .history-date, .humidity { color: #aaa; }
+            .form-group label { color: #ccc; }
+            .form-group input, .form-group select {
+                background: #2d2d2d;
+                border-color: #444;
+                color: #eee;
+            }
+            .history-item:hover { background: #2d2d2d; }
+            .stat-box { background: #2d2d2d; }
+            .stat-box:hover { background: #3d3d3d; }
+            .chart-bar { background: linear-gradient(to top, #1e5e22, #2E7D32); }
+            .chart-value { background: #2d2d2d; color: #4CAF50; }
+            .weather-summary { background: #2d2d2d; }
+            .nav-item:hover { background: #2d2d2d; }
+            .nav-item.active { background: #1e5e22; color: white; }
+            .toast { background: rgba(255,255,255,0.9); color: #333; }
+            .error-message { background: #2d2d2d; color: #f8d7da; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h2>🌱 Kyera Smart Ag</h2>
+        <div class="language-toggle" id="langToggle" onclick="toggleLanguage()">
+            <span id="lang-btn">🇺🇬 Runyankole</span>
+        </div>
+    </div>
+
+    <div class="stats-bar" id="stats">
+        <div class="stat-item" onclick="viewFarmers()">
+            <div class="stat-value" id="farmer-count">0</div>
+            <div class="stat-label" id="stat-farmers">Total Farmers</div>
+        </div>
+        <div class="stat-item" onclick="viewAllAlerts()">
+            <div class="stat-value" id="alert-count">0</div>
+            <div class="stat-label" id="stat-alerts">Alerts</div>
+        </div>
+        <div class="stat-item" onclick="viewTodayAlerts()">
+            <div class="stat-value" id="today-count">0</div>
+            <div class="stat-label" id="stat-today">Today's Alerts</div>
+        </div>
+    </div>
+
+    <!-- Home Page -->
+    <div id="home-page" class="page active-page">
+        <div class="weather-card" onclick="refreshWeather()">
+            <div class="weather-main">
+                <div>
+                    <div class="temp" id="temperature">--°C</div>
+                    <div id="weather-desc">Loading...</div>
+                    <div class="humidity" id="humidity">--%</div>
+                </div>
+                <div class="weather-icon" id="weather-icon">🌤️</div>
+            </div>
+            <div class="forecast" id="forecast">
+                <div class="forecast-item" onclick="showDayDetails(0, event)">
+                    <div id="forecast-day1">Mon</div>
+                    <span class="forecast-temp" id="forecast-temp1">-°</span>
+                </div>
+                <div class="forecast-item" onclick="showDayDetails(1, event)">
+                    <div id="forecast-day2">Tue</div>
+                    <span class="forecast-temp" id="forecast-temp2">-°</span>
+                </div>
+                <div class="forecast-item" onclick="showDayDetails(2, event)">
+                    <div id="forecast-day3">Wed</div>
+                    <span class="forecast-temp" id="forecast-temp3">-°</span>
+                </div>
+                <div class="forecast-item" onclick="showDayDetails(3, event)">
+                    <div id="forecast-day4">Thu</div>
+                    <span class="forecast-temp" id="forecast-temp4">-°</span>
+                </div>
+                <div class="forecast-item" onclick="showDayDetails(4, event)">
+                    <div id="forecast-day5">Fri</div>
+                    <span class="forecast-temp" id="forecast-temp5">-°</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-title">
+            <span id="select-crop-title">🌾 Select Crop</span>
+        </div>
+
+        <div class="crop-selector" id="cropSelector">
+            <button class="crop-btn active" onclick="selectCrop('maize')" id="crop-maize">🌽 Maize</button>
+            <button class="crop-btn" onclick="selectCrop('bananas')" id="crop-bananas">🍌 Bananas</button>
+            <button class="crop-btn" onclick="selectCrop('beans')" id="crop-beans">🫘 Beans</button>
+            <button class="crop-btn" onclick="selectCrop('general')" id="crop-general">🌱 General</button>
+        </div>
+
+        <div class="section-title">
+            <span id="risk-alerts-title">⚠️ Risk Alerts</span>
+            <span class="view-all" onclick="viewAllAlerts()" id="view-all-link">View All →</span>
+        </div>
+
+        <div id="alerts-container" class="alerts-container">
+            <div class="loading-spinner"></div>
+            <div class="loading" id="loading-alerts">Loading alerts...</div>
+        </div>
+
+        <div class="section-title">
+            <span id="weather-trend-title">📊 Weather Trend</span>
+            <span class="view-all" onclick="refreshWeatherHistory()">↻ Refresh</span>
+        </div>
+
+        <div class="chart-card" onclick="showWeatherDetails()">
+            <div class="chart-header">
+                <span class="chart-title" id="last-7-days">Last 7 Days</span>
+                <span class="chart-trend" id="weather-trend">--</span>
+            </div>
+            <div class="chart-container">
+                <div class="chart" id="weather-chart"></div>
+            </div>
+            <div id="weather-summary" class="weather-summary"></div>
+        </div>
+    </div>
+
+    <!-- Alerts Page -->
+    <div id="alerts-page" class="page">
+        <div class="section-title">
+            <span id="all-alerts-title">📋 All Alerts</span>
+            <span class="view-all" onclick="refreshAlerts()">↻ Refresh</span>
+        </div>
+        
+        <div class="crop-selector" id="historyCropSelector">
+            <button class="crop-btn active" onclick="loadHistory('maize')" id="history-maize">🌽 Maize</button>
+            <button class="crop-btn" onclick="loadHistory('bananas')" id="history-bananas">🍌 Bananas</button>
+            <button class="crop-btn" onclick="loadHistory('beans')" id="history-beans">🫘 Beans</button>
+            <button class="crop-btn" onclick="loadHistory('all')" id="history-all">📋 All</button>
+        </div>
+
+        <div id="history-container" class="history-list">
+            <div class="loading-spinner"></div>
+            <div class="loading" id="loading-history">Loading history...</div>
+        </div>
+    </div>
+
+    <!-- Profile Page -->
+    <div id="profile-page" class="page">
+        <div class="register-form">
+            <h4 id="register-title">👤 Farmer Registration</h4>
+            
+            <div class="form-group">
+                <label id="label-name">Full Name</label>
+                <input type="text" id="reg-name" placeholder="Enter your name">
+            </div>
+            
+            <div class="form-group">
+                <label id="label-phone">Phone Number</label>
+                <input type="tel" id="reg-phone" placeholder="07XXXXXXXX">
+            </div>
+            
+            <div class="form-group">
+                <label id="label-village">Village</label>
+                <input type="text" id="reg-village" placeholder="Your village">
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label id="label-main-crop">Main Crop</label>
+                    <select id="reg-crop">
+                        <option value="maize" id="option-maize">Maize</option>
+                        <option value="bananas" id="option-bananas">Bananas</option>
+                        <option value="beans" id="option-beans">Beans</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label id="label-farm-size">Farm Size (acres)</label>
+                    <input type="number" id="reg-size" step="0.1" placeholder="e.g., 2.5">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label id="label-other-crops">Other Crops</label>
+                <input type="text" id="reg-other" placeholder="e.g., coffee, cassava">
+            </div>
+            
+            <div class="form-group">
+                <label id="label-language">Preferred Language</label>
+                <select id="reg-language">
+                    <option value="en" id="option-en">English</option>
+                    <option value="rn" id="option-rn">Runyankole</option>
+                </select>
+            </div>
+            
+            <button class="btn" onclick="registerFarmer()" id="register-btn">Register / Update</button>
+            
+            <div class="stats-container">
+                <h5 id="your-stats-title">📊 Your Stats</h5>
+                <div class="stats-grid">
+                    <div class="stat-box" onclick="loadFarmerAlerts()">
+                        <div class="stat-number" id="profile-alerts">0</div>
+                        <div class="stat-label-small" id="stats-alerts">Alerts</div>
+                    </div>
+                    <div class="stat-box" onclick="markAllAsRead()">
+                        <div class="stat-number" id="profile-read">0</div>
+                        <div class="stat-label-small" id="stats-read">Read</div>
+                    </div>
+                    <div class="stat-box" onclick="showFeedbackHistory()">
+                        <div class="stat-number" id="profile-feedback">0</div>
+                        <div class="stat-label-small" id="stats-feedback">Feedback</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="margin-top: 20px; text-align: center;">
+                <small style="color: #999;" id="sms-note">Registered farmers receive SMS alerts</small>
+            </div>
+            
+            <div style="margin-top: 15px; text-align: center;">
+                <button class="btn-outline" onclick="logout()" style="width: auto; padding: 10px 30px;">Logout</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Feedback Modal -->
+    <div class="modal" id="feedback-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 id="feedback-title">📝 Alert Feedback</h4>
+                <span class="modal-close" onclick="closeModal()">&times;</span>
+            </div>
+            
+            <p id="feedback-question">Was this alert helpful?</p>
+            
+            <div class="rating" id="rating-stars">
+                <span class="rating-star" onclick="setRating(1)">★</span>
+                <span class="rating-star" onclick="setRating(2)">★</span>
+                <span class="rating-star" onclick="setRating(3)">★</span>
+                <span class="rating-star" onclick="setRating(4)">★</span>
+                <span class="rating-star" onclick="setRating(5)">★</span>
+            </div>
+            
+            <div class="form-group">
+                <label id="label-observed">Did you observe this pest?</label>
+                <select id="feedback-observed">
+                    <option value="true" id="option-yes">Yes, I saw it</option>
+                    <option value="false" id="option-no">No, not yet</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label id="label-comments">Additional comments</label>
+                <textarea id="feedback-comment" rows="3" placeholder="Your feedback..."></textarea>
+            </div>
+            
+            <button class="btn" onclick="submitFeedback()" id="submit-feedback-btn">Submit Feedback</button>
+        </div>
+    </div>
+
+    <!-- Farmers List Modal -->
+    <div class="modal" id="farmers-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4>👥 Farmers List</h4>
+                <span class="modal-close" onclick="closeFarmersModal()">&times;</span>
+            </div>
+            <div id="farmers-list" class="farmers-list">
+                <div class="loading-spinner"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast" style="display: none;"></div>
+
+    <!-- Bottom Navigation -->
+    <div class="nav">
+        <div class="nav-item active" onclick="showPage('home')" id="nav-home">
+            <i>🏠</i>
+            <span>Home</span>
+        </div>
+        <div class="nav-item" onclick="showPage('alerts')" id="nav-alerts">
+            <i>🔔</i>
+            <span>Alerts</span>
+            <span class="badge" id="alert-badge" style="display: none;">0</span>
+        </div>
+        <div class="nav-item" onclick="showPage('profile')" id="nav-profile">
+            <i>👤</i>
+            <span>Profile</span>
+        </div>
+    </div>
+
+    <script>
+        // App state
+        let currentCrop = 'maize';
+        let currentLang = 'en';
+        let currentFarmer = null;
+        let currentAlert = null;
+        let currentRating = 0;
+        
+        // Translations
+        const translations = {
+            en: {
+                'select_crop': 'Select Crop',
+                'risk_alerts': 'Risk Alerts',
+                'view_all': 'View All',
+                'weather_trend': 'Weather Trend',
+                'register': 'Register / Update',
+                'alerts': 'Alerts',
+                'home': 'Home',
+                'profile': 'Profile',
+                'current_weather': 'Current Weather',
+                'humidity': 'Humidity',
+                'forecast': 'Forecast',
+                'my_crops': 'My Crops',
+                'maize': 'Maize',
+                'bananas': 'Bananas',
+                'beans': 'Beans',
+                'general': 'General',
+                'high_risk': 'HIGH RISK',
+                'medium_risk': 'MEDIUM RISK',
+                'low_risk': 'LOW RISK',
+                'prevention': 'Prevention',
+                'treatment': 'Treatment',
+                'feedback': 'Feedback',
+                'was_this_helpful': 'Was this alert helpful?',
+                'yes_observed': 'Yes, I saw it',
+                'no_not_yet': 'No, not yet',
+                'additional_comments': 'Additional comments',
+                'submit': 'Submit',
+                'thank_you': 'Thank you for your feedback!',
+                'register_now': 'Register Now',
+                'full_name': 'Full Name',
+                'phone_number': 'Phone Number',
+                'village': 'Village',
+                'main_crop': 'Main Crop',
+                'farm_size': 'Farm Size (acres)',
+                'other_crops': 'Other Crops',
+                'preferred_language': 'Preferred Language',
+                'your_stats': 'Your Stats',
+                'alerts_received': 'Alerts',
+                'read': 'Read',
+                'feedback_given': 'Feedback',
+                'no_active_alerts': 'No active alerts',
+                'loading': 'Loading',
+                'weather_trend_rising': '📈 Rising',
+                'weather_trend_falling': '📉 Falling',
+                'last_7_days': 'Last 7 Days',
+                'all_alerts': 'All Alerts',
+                'sms_note': 'Registered farmers receive SMS alerts',
+                'submit_feedback': 'Submit Feedback',
+                'observed_pest': 'Did you observe this pest?',
+                'avg_temp': 'Avg Temperature',
+                'avg_humidity': 'Avg Humidity',
+                'refresh': 'Refresh',
+                'logout': 'Logout',
+                'total_farmers': 'Total Farmers',
+                'today_alerts': "Today's Alerts",
+                'farmers_list': 'Farmers List'
+            },
+            rn: {
+                'select_crop': 'Tondeka Ekihimba',
+                'risk_alerts': 'Obwengye bw\'Endwadde',
+                'view_all': 'Reba Byona',
+                'weather_trend': 'Ebiragiro By\'Obudde',
+                'register': 'Eriyisha / Kuza Omuntu',
+                'alerts': 'Obwengye',
+                'home': 'Eka',
+                'profile': 'Ebikukwatako',
+                'current_weather': 'Obudde Obw\'Okubanza',
+                'humidity': 'Obuju',
+                'forecast': 'Ebiragiro',
+                'my_crops': 'Ebihimba Byange',
+                'maize': 'Kasooli',
+                'bananas': 'Bitooke',
+                'beans': 'Bihimba',
+                'general': 'Byona',
+                'high_risk': 'AKAWANGO AKAINGI',
+                'medium_risk': 'AKAWANGO AKAKATI',
+                'low_risk': 'AKAWANGO AKAKE',
+                'prevention': 'Okwirinda',
+                'treatment': 'Okujanjaba',
+                'feedback': 'Okugamba',
+                'was_this_helpful': 'Eki kikuyambire?',
+                'yes_observed': 'EEgo, nakirebye',
+                'no_not_yet': 'Nangwa, tinkakireba',
+                'additional_comments': 'Ebigyendererwa',
+                'submit': 'Oreke',
+                'thank_you': 'Webale kugamba!',
+                'register_now': 'Eriyisha Omuntu',
+                'full_name': 'Eibara Lyona',
+                'phone_number': 'E nomba ya simu',
+                'village': 'Omugyenge',
+                'main_crop': 'Ekihimba Ekikuru',
+                'farm_size': 'Obunene bw\'Omurima',
+                'other_crops': 'Ebihimba Ebyindi',
+                'preferred_language': 'Orurimi Orukwenda',
+                'your_stats': 'Ebigyendererwa Byawe',
+                'alerts_received': 'Obwengye',
+                'read': 'Okushoma',
+                'feedback_given': 'Okugamba',
+                'no_active_alerts': 'Tihariho bwengye',
+                'loading': 'Nitwegunia',
+                'weather_trend_rising': '📈 Kugenda Hajju',
+                'weather_trend_falling': '📉 Kugenda Hasi',
+                'last_7_days': 'Ebiro 7 Ebihwe',
+                'all_alerts': 'Obwengye Bwona',
+                'sms_note': 'Abalima abeiyishetwe barekebwa obutumwa',
+                'submit_feedback': 'Oreke Okugamba Kwawe',
+                'observed_pest': 'Wakireba eki nyeganyege?',
+                'avg_temp': 'Obushyuhe Omu',
+                'avg_humidity': 'Obuju Omu',
+                'refresh': 'Kuza Omurundi',
+                'logout': 'Kuruga',
+                'total_farmers': 'Abalima Bona',
+                'today_alerts': 'Obwengye Bw\'Erizooba',
+                'farmers_list': 'Orutonde rw\'Abalima'
+            }
+        };
+
+        // Show toast notification
+        function showToast(message, duration = 2000) {
+            let toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.style.display = 'block';
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, duration);
+        }
+
+        // View farmers list
+        function viewFarmers() {
+            const count = document.getElementById('farmer-count').textContent;
+            showToast(`📋 Loading farmers list...`);
+            
+            fetch('/api/farmers/list')
+                .then(r => r.json())
+                .then(farmers => {
+                    const modal = document.getElementById('farmers-modal');
+                    const listDiv = document.getElementById('farmers-list');
+                    
+                    if (farmers.length === 0) {
+                        listDiv.innerHTML = '<div style="text-align:center; padding:20px;">No farmers registered</div>';
+                    } else {
+                        let html = '<div style="margin-bottom:10px; font-weight:bold;">Total: ' + farmers.length + ' farmers</div>';
+                        farmers.forEach((farmer, index) => {
+                            html += `
+                                <div class="farmer-item" onclick="viewFarmerDetails('${farmer.phone}')">
+                                    <div>
+                                        <div class="farmer-name">${farmer.name}</div>
+                                        <div style="font-size:11px; color:#666;">${farmer.village || 'No village'}</div>
+                                    </div>
+                                    <div class="farmer-crop">${farmer.main_crop}</div>
+                                </div>
+                            `;
+                        });
+                        listDiv.innerHTML = html;
+                    }
+                    
+                    modal.classList.add('active');
+                })
+                .catch(() => {
+                    alert(`📋 Total Farmers: ${count}`);
+                });
+        }
+
+        // View farmer details
+        function viewFarmerDetails(phone) {
+            closeFarmersModal();
+            localStorage.setItem('farmer_phone', phone);
+            showPage('profile');
+            setTimeout(() => {
+                loadProfile();
+            }, 100);
+        }
+
+        // Close farmers modal
+        function closeFarmersModal() {
+            document.getElementById('farmers-modal').classList.remove('active');
+        }
+
+        // View all alerts
+        function viewAllAlerts() {
+            showToast('🔔 Loading all alerts...');
+            document.querySelector('.nav-item[onclick="showPage(\'alerts\')"]').click();
+            setTimeout(() => {
+                loadHistory('all');
+            }, 200);
+        }
+
+        // View today's alerts
+        function viewTodayAlerts() {
+            const count = document.getElementById('today-count').textContent;
+            showToast(`📅 Loading today's alerts...`);
+            
+            fetch('/api/alerts/today')
+                .then(r => r.json())
+                .then(alerts => {
+                    if (alerts.length === 0) {
+                        alert('📅 No alerts today');
+                        return;
+                    }
+                    
+                    let message = `📅 Today's Alerts (${count}):\n\n`;
+                    alerts.forEach((alert, index) => {
+                        message += `${index + 1}. ${alert.pest} - ${alert.risk}\n`;
+                        message += `   ${alert.advice.substring(0, 60)}...\n`;
+                        if (alert.farmer_name) {
+                            message += `   👤 ${alert.farmer_name}\n`;
+                        }
+                        message += '\n';
+                    });
+                    alert(message);
+                })
+                .catch(() => {
+                    alert(`📅 Today's Alerts: ${count}`);
+                });
+        }
+
+        // Show day details
+        function showDayDetails(index, event) {
+            event.stopPropagation();
+            const day = document.getElementById(`forecast-day${index+1}`).textContent;
+            const temp = document.getElementById(`forecast-temp${index+1}`).textContent;
+            showToast(`${day}: ${temp}`);
+        }
+
+        // Show weather details
+        function showWeatherDetails() {
+            showToast('📊 Weather trend for last 7 days');
+        }
+
+        // Refresh weather
+        function refreshWeather() {
+            showToast('🔄 Refreshing weather...');
+            loadWeather();
+        }
+
+        // Refresh weather history
+        function refreshWeatherHistory() {
+            showToast('🔄 Refreshing weather chart...');
+            loadWeatherHistory();
+        }
+
+        // Refresh alerts
+        function refreshAlerts() {
+            showToast('🔄 Refreshing alerts...');
+            loadHistory('all');
+        }
+
+        // Page navigation
+        function showPage(page) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
+            document.getElementById(page + '-page').classList.add('active-page');
+            
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+            
+            if (page === 'home') {
+                loadWeather();
+                loadAlerts(currentCrop);
+                loadWeatherHistory();
+            } else if (page === 'alerts') {
+                loadHistory('all');
+            } else if (page === 'profile') {
+                loadProfile();
+            }
+            
+            updateUIText();
+        }
+
+        // Toggle language
+        function toggleLanguage() {
+            currentLang = currentLang === 'en' ? 'rn' : 'en';
+            document.getElementById('lang-btn').textContent = 
+                currentLang === 'en' ? '🇺🇬 Runyankole' : '🇬🇧 English';
+            
+            updateUIText();
+            showToast('Language changed to ' + (currentLang === 'en' ? 'English' : 'Runyankole'));
+            
+            if (document.getElementById('home-page').classList.contains('active-page')) {
+                loadAlerts(currentCrop);
+                loadWeatherHistory();
+            } else if (document.getElementById('alerts-page').classList.contains('active-page')) {
+                loadHistory('all');
+            }
+        }
+
+        // Update UI text
+        function updateUIText() {
+            const t = translations[currentLang];
+            
+            const elements = {
+                'select-crop-title': '🌾 ' + t.select_crop,
+                'risk-alerts-title': '⚠️ ' + t.risk_alerts,
+                'view-all-link': t.view_all + ' →',
+                'weather-trend-title': '📊 ' + t.weather_trend,
+                'last-7-days': t.last_7_days,
+                'all-alerts-title': '📋 ' + t.all_alerts,
+                'register-title': '👤 ' + t.register_now,
+                'your-stats-title': '📊 ' + t.your_stats,
+                'sms-note': t.sms_note,
+                'nav-home': t.home,
+                'nav-alerts': t.alerts,
+                'nav-profile': t.profile,
+                'label-name': t.full_name,
+                'label-phone': t.phone_number,
+                'label-village': t.village,
+                'label-main-crop': t.main_crop,
+                'label-farm-size': t.farm_size,
+                'label-other-crops': t.other_crops,
+                'label-language': t.preferred_language,
+                'register-btn': t.register,
+                'crop-maize': '🌽 ' + t.maize,
+                'crop-bananas': '🍌 ' + t.bananas,
+                'crop-beans': '🫘 ' + t.beans,
+                'crop-general': '🌱 ' + t.general,
+                'history-maize': '🌽 ' + t.maize,
+                'history-bananas': '🍌 ' + t.bananas,
+                'history-beans': '🫘 ' + t.beans,
+                'history-all': '📋 ' + t.all_alerts,
+                'option-maize': t.maize,
+                'option-bananas': t.bananas,
+                'option-beans': t.beans,
+                'option-en': 'English',
+                'option-rn': 'Runyankole',
+                'stat-farmers': t.total_farmers,
+                'stat-alerts': t.alerts,
+                'stat-today': t.today_alerts,
+                'stats-alerts': t.alerts_received,
+                'stats-read': t.read,
+                'stats-feedback': t.feedback_given,
+                'feedback-title': '📝 ' + t.feedback,
+                'feedback-question': t.was_this_helpful,
+                'label-observed': t.observed_pest,
+                'option-yes': t.yes_observed,
+                'option-no': t.no_not_yet,
+                'label-comments': t.additional_comments,
+                'submit-feedback-btn': t.submit_feedback,
+                'loading-alerts': t.loading + '...',
+                'loading-history': t.loading + '...'
+            };
+            
+            for (let [id, text] of Object.entries(elements)) {
+                const element = document.getElementById(id);
+                if (element) {
+                    if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA') {
+                        element.placeholder = text;
+                    } else if (element.tagName === 'OPTION') {
+                        element.textContent = text;
+                    } else {
+                        element.innerHTML = text;
+                    }
+                }
+            }
+        }
+
+        // Select crop
+        function selectCrop(crop) {
+            console.log('Selecting crop:', crop);
+            currentCrop = crop;
+            
+            // Update active button
+            document.querySelectorAll('#cropSelector .crop-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Load alerts for selected crop
+            loadAlerts(crop);
+        }
+
+        // Load weather data
+        function loadWeather() {
+            fetch('/api/weather')
+                .then(r => r.json())
+                .then(data => {
+                    document.getElementById('temperature').textContent = data.current.temp + '°C';
+                    document.getElementById('weather-desc').textContent = data.current.condition;
+                    document.getElementById('humidity').innerHTML = (translations[currentLang].humidity || 'Humidity') + ': ' + data.current.humidity + '%';
+                    document.getElementById('weather-icon').textContent = data.current.icon;
+                    
+                    data.forecast.forEach((day, index) => {
+                        if (index < 5) {
+                            document.getElementById(`forecast-day${index+1}`).textContent = day.day;
+                            document.getElementById(`forecast-temp${index+1}`).innerHTML = day.temp + '°';
+                        }
+                    });
+                })
+                .catch(error => {
+                    console.error('Weather error:', error);
+                });
+        }
+
+        // Load alerts for home page
+        function loadAlerts(crop) {
+            console.log('Loading alerts for crop:', crop);
+            
+            // Show loading state
+            const container = document.getElementById('alerts-container');
+            if (!container) return;
+            
+            container.innerHTML = '<div class="loading-spinner"></div><div class="loading">Loading alerts...</div>';
+            
+            // Fetch current alerts for this crop
+            fetch('/api/alerts/' + crop)
+                .then(response => {
+                    console.log('Response status:', response.status);
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(alerts => {
+                    console.log('Alerts received:', alerts);
+                    const t = translations[currentLang];
+                    let html = '';
+                    
+                    if (!alerts || alerts.length === 0) {
+                        html = `<div class="alert" style="background:#28a745; color:white; border-left:5px solid #1e7e34; cursor:default;">
+                            ✅ ${t.no_active_alerts || 'No active alerts'}
+                        </div>`;
+                    } else {
+                        alerts.forEach((alert, index) => {
+                            let riskClass = alert.risk.toLowerCase();
+                            let riskTranslated = alert.risk;
+                            
+                            if (alert.risk === 'HIGH') riskTranslated = t.high_risk || 'HIGH RISK';
+                            else if (alert.risk === 'MEDIUM') riskTranslated = t.medium_risk || 'MEDIUM RISK';
+                            else if (alert.risk === 'LOW') riskTranslated = t.low_risk || 'LOW RISK';
+                            
+                            html += `
+                                <div class="alert ${riskClass}" onclick="toggleAlertDetails(${index})">
+                                    <div class="alert-header">
+                                        <span class="alert-pest">${alert.pest}</span>
+                                        <span class="alert-risk">${riskTranslated}</span>
+                                    </div>
+                                    <div class="alert-advice">${alert.advice}</div>
+                                    <div class="alert-details" id="alert-details-${index}">
+                                        <div class="prevention-tip">
+                                            <strong>🛡️ ${t.prevention || 'Prevention'}:</strong><br>
+                                            ${alert.prevention || 'Monitor crops regularly'}
+                                        </div>
+                                        <div class="treatment-tip">
+                                            <strong>💊 ${t.treatment || 'Treatment'}:</strong><br>
+                                            ${alert.treatment || 'Consult extension officer'}
+                                        </div>
+                                        <button class="btn" style="margin-top:10px; background:rgba(255,255,255,0.2); color:white;" 
+                                            onclick="event.stopPropagation(); showFeedbackModal('${alert.pest}', ${index})">
+                                            📝 ${t.feedback || 'Feedback'}
+                                        </button>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                    }
+                    
+                    container.innerHTML = html;
+                    
+                    // Update the badge in navigation
+                    const badge = document.getElementById('alert-badge');
+                    if (badge) {
+                        badge.textContent = alerts.length;
+                        badge.style.display = alerts.length ? 'inline' : 'none';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading alerts:', error);
+                    container.innerHTML = '<div class="error-message">Failed to load alerts. Please try again.</div>';
+                });
+        }
+
+        // Toggle alert details
+        function toggleAlertDetails(index) {
+            const alert = document.querySelectorAll('.alert')[index];
+            alert.classList.toggle('expanded');
+        }
+
+        // Load weather history
+        function loadWeatherHistory() {
+            fetch('/api/weather/history')
+                .then(r => r.json())
+                .then(data => {
+                    const t = translations[currentLang];
+                    
+                    if (!data || data.length === 0) {
+                        generateDemoWeatherChart();
+                        return;
+                    }
+                    
+                    let chartHtml = '';
+                    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+                    
+                    data.forEach((day, index) => {
+                        let date = new Date(day.date);
+                        let dayName = days[date.getDay()];
+                        let height = 40 + (day.temp / 30) * 80;
+                        
+                        chartHtml += `
+                            <div class="chart-bar-wrapper" onclick="showToast('${dayName}: ${Math.round(day.temp)}°C, ${Math.round(day.humidity)}% humidity')">
+                                <div class="chart-bar" style="height: ${height}px;">
+                                    <span class="chart-value">${Math.round(day.temp)}°</span>
+                                </div>
+                                <div class="chart-label">${dayName}</div>
+                                <div class="chart-humidity">${Math.round(day.humidity)}%</div>
+                            </div>
+                        `;
+                    });
+                    
+                    document.getElementById('weather-chart').innerHTML = chartHtml;
+                    
+                    let avgTemp = Math.round(data.reduce((sum, d) => sum + d.temp, 0) / data.length);
+                    let avgHumidity = Math.round(data.reduce((sum, d) => sum + d.humidity, 0) / data.length);
+                    
+                    let firstTemp = data[0]?.temp || 0;
+                    let lastTemp = data[data.length-1]?.temp || 0;
+                    let trend = lastTemp > firstTemp ? t.weather_trend_rising : t.weather_trend_falling;
+                    document.getElementById('weather-trend').textContent = trend;
+                    
+                    document.getElementById('weather-summary').innerHTML = `
+                        <div class="summary-item">
+                            <span class="summary-icon">🌡️</span>
+                            <span class="summary-text">${t.avg_temp}:</span>
+                            <span class="summary-value">${avgTemp}°C</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-icon">💧</span>
+                            <span class="summary-text">${t.avg_humidity}:</span>
+                            <span class="summary-value">${avgHumidity}%</span>
+                        </div>
+                    `;
+                })
+                .catch(error => {
+                    console.error('Weather history error:', error);
+                    generateDemoWeatherChart();
+                });
+        }
+
+        // Generate demo weather chart
+        function generateDemoWeatherChart() {
+            const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+            const today = new Date().getDay();
+            let demoHtml = '';
+            
+            const temps = [26, 25, 24, 25, 26, 27, 26];
+            const humidities = [65, 62, 60, 63, 68, 70, 67];
+            
+            for (let i = 0; i < 7; i++) {
+                let dayIndex = (today + i) % 7;
+                let dayName = days[dayIndex];
+                let temp = temps[i];
+                let humidity = humidities[i];
+                let height = 40 + (temp / 30) * 80;
+                
+                demoHtml += `
+                    <div class="chart-bar-wrapper">
+                        <div class="chart-bar" style="height: ${height}px;">
+                            <span class="chart-value">${temp}°</span>
+                        </div>
+                        <div class="chart-label">${dayName}</div>
+                        <div class="chart-humidity">${humidity}%</div>
+                    </div>
+                `;
+            }
+            
+            document.getElementById('weather-chart').innerHTML = demoHtml;
+            document.getElementById('weather-trend').textContent = '📈 Rising';
+            document.getElementById('weather-summary').innerHTML = `
+                <div class="summary-item">
+                    <span class="summary-icon">🌡️</span>
+                    <span class="summary-text">Avg Temperature:</span>
+                    <span class="summary-value">25°C</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-icon">💧</span>
+                    <span class="summary-text">Avg Humidity:</span>
+                    <span class="summary-value">66%</span>
+                </div>
+            `;
+        }
+
+        // Load alert history
+        function loadHistory(crop) {
+            document.querySelectorAll('#historyCropSelector .crop-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            if (crop !== 'all') {
+                event.target.classList.add('active');
+            } else {
+                document.getElementById('history-all').classList.add('active');
+            }
+            
+            document.getElementById('history-container').innerHTML = '<div class="loading-spinner"></div><div class="loading">Loading history...</div>';
+            
+            let url = crop === 'all' ? '/api/alerts/all' : '/api/history/' + crop;
+            
+            fetch(url)
+                .then(r => r.json())
+                .then(alerts => {
+                    const t = translations[currentLang];
+                    let html = '';
+                    
+                    if (alerts.length === 0) {
+                        html = '<div style="padding:30px; text-align:center; color:#999;">' + t.no_active_alerts + '</div>';
+                    } else {
+                        alerts.forEach(alert => {
+                            const date = new Date(alert.date).toLocaleString();
+                            const farmerInfo = alert.farmer_name ? `👤 ${alert.farmer_name}` : '';
+                            html += `
+                                <div class="history-item" onclick="viewAlertDetails('${alert.pest}')">
+                                    <div>
+                                        <div class="history-pest">${alert.pest}</div>
+                                        <div class="history-date">${date}</div>
+                                        ${farmerInfo ? `<div style="font-size:10px; color:#666; margin-top:2px;">${farmerInfo}</div>` : ''}
+                                    </div>
+                                    <div>
+                                        <span class="history-risk ${alert.risk.toLowerCase()}">${alert.risk}</span>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                    }
+                    
+                    document.getElementById('history-container').innerHTML = html;
+                })
+                .catch(error => {
+                    console.error('History error:', error);
+                    document.getElementById('history-container').innerHTML = '<div class="error-message">Failed to load history</div>';
+                });
+        }
+
+        // View alert details
+        function viewAlertDetails(pest) {
+            showToast(`📋 Details for ${pest}`);
+        }
+
+        // Load stats
+        function loadStats() {
+            fetch('/api/stats')
+                .then(r => r.json())
+                .then(data => {
+                    document.getElementById('farmer-count').textContent = data.total_farmers || 0;
+                    document.getElementById('alert-count').textContent = data.total_alerts || 0;
+                    document.getElementById('today-count').textContent = data.today_alerts || 0;
+                })
+                .catch(error => {
+                    console.error('Stats error:', error);
+                });
+        }
+
+        // Load profile
+        function loadProfile() {
+            const phone = localStorage.getItem('farmer_phone');
+            if (phone) {
+                fetch('/api/farmer/' + phone)
+                    .then(r => r.json())
+                    .then(farmer => {
+                        if (!farmer.error) {
+                            document.getElementById('reg-name').value = farmer.name || '';
+                            document.getElementById('reg-phone').value = farmer.phone || '';
+                            document.getElementById('reg-village').value = farmer.village || '';
+                            document.getElementById('reg-crop').value = farmer.main_crop || 'maize';
+                            document.getElementById('reg-size').value = farmer.farm_size || '';
+                            document.getElementById('reg-other').value = farmer.other_crops || '';
+                            document.getElementById('reg-language').value = farmer.language || 'en';
+                            
+                            currentFarmer = farmer;
+                            
+                            fetch('/api/farmer/' + farmer.id + '/stats')
+                                .then(r => r.json())
+                                .then(stats => {
+                                    document.getElementById('profile-alerts').textContent = stats.total_alerts || 0;
+                                    document.getElementById('profile-read').textContent = stats.read_count || 0;
+                                    document.getElementById('profile-feedback').textContent = stats.feedback_count || 0;
+                                });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Profile error:', error);
+                    });
+            }
+        }
+
+        // Register farmer
+        function registerFarmer() {
+            const data = {
+                name: document.getElementById('reg-name').value,
+                phone: document.getElementById('reg-phone').value,
+                village: document.getElementById('reg-village').value,
+                main_crop: document.getElementById('reg-crop').value,
+                farm_size: document.getElementById('reg-size').value,
+                other_crops: document.getElementById('reg-other').value,
+                language: document.getElementById('reg-language').value
+            };
+            
+            if (!data.name || !data.phone) {
+                alert(translations[currentLang].full_name + ' and ' + translations[currentLang].phone_number + ' required');
+                return;
+            }
+            
+            fetch('/api/register', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            })
+            .then(r => r.json())
+            .then(result => {
+                if (result.success) {
+                    alert(result.message);
+                    localStorage.setItem('farmer_phone', data.phone);
+                    loadProfile();
+                    loadStats();
+                    showToast('Registration successful!');
+                } else {
+                    alert('Error: ' + result.message);
+                }
+            })
+            .catch(error => {
+                alert('Registration failed');
+            });
+        }
+
+        // Load farmer alerts
+        function loadFarmerAlerts() {
+            if (!currentFarmer) {
+                alert('Please register first');
+                return;
+            }
+            showToast('Loading your alerts...');
+            showPage('alerts');
+            setTimeout(() => {
+                loadHistory('all');
+            }, 200);
+        }
+
+        // Mark all as read
+        function markAllAsRead() {
+            if (!currentFarmer) return;
+            showToast('Marking all as read...');
+            setTimeout(() => {
+                showToast('All alerts marked as read');
+            }, 1000);
+        }
+
+        // Show feedback history
+        function showFeedbackHistory() {
+            showToast('Feedback history feature coming soon');
+        }
+
+        // Logout
+        function logout() {
+            localStorage.removeItem('farmer_phone');
+            currentFarmer = null;
+            document.getElementById('reg-name').value = '';
+            document.getElementById('reg-phone').value = '';
+            document.getElementById('reg-village').value = '';
+            document.getElementById('reg-crop').value = 'maize';
+            document.getElementById('reg-size').value = '';
+            document.getElementById('reg-other').value = '';
+            document.getElementById('reg-language').value = 'en';
+            document.getElementById('profile-alerts').textContent = '0';
+            document.getElementById('profile-read').textContent = '0';
+            document.getElementById('profile-feedback').textContent = '0';
+            showToast('Logged out successfully');
+        }
+
+        // Show feedback modal
+        function showFeedbackModal(pestName, alertIndex) {
+            currentAlert = {
+                pest: pestName,
+                index: alertIndex
+            };
+            document.getElementById('feedback-modal').classList.add('active');
+        }
+
+        // Set rating
+        function setRating(rating) {
+            currentRating = rating;
+            document.querySelectorAll('.rating-star').forEach((star, i) => {
+                star.classList.toggle('selected', i < rating);
+            });
+        }
+
+        // Submit feedback
+        function submitFeedback() {
+            const feedback = {
+                farmer_id: currentFarmer?.id,
+                alert_id: currentAlert?.index,
+                rating: currentRating,
+                comment: document.getElementById('feedback-comment').value,
+                pest_observed: document.getElementById('feedback-observed').value === 'true'
+            };
+            
+            fetch('/api/feedback', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(feedback)
+            })
+            .then(r => r.json())
+            .then(() => {
+                alert(translations[currentLang].thank_you);
+                closeModal();
+                loadProfile();
+            })
+            .catch(() => {
+                alert('Thank you for your feedback!');
+                closeModal();
+            });
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('feedback-modal').classList.remove('active');
+            currentRating = 0;
+            document.querySelectorAll('.rating-star').forEach(s => s.classList.remove('selected'));
+            document.getElementById('feedback-comment').value = '';
+            document.getElementById('feedback-observed').value = 'true';
+        }
+
+        // Service Worker for PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/static/service-worker.js')
+                    .then(reg => console.log('ServiceWorker registered'))
+                    .catch(err => console.log('ServiceWorker error:', err));
+            });
+        }
+
+        // Initialize app
+        function init() {
+            loadWeather();
+            loadAlerts('maize');
+            loadWeatherHistory();
+            loadStats();
+            loadProfile();
+            updateUIText();
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+
+        // Auto-refresh every 30 minutes
+        setInterval(() => {
+            if (document.getElementById('home-page').classList.contains('active-page')) {
+                loadWeather();
+                loadAlerts(currentCrop);
+                loadWeatherHistory();
+                loadStats();
+            }
+        }, 1800000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kyera SMS Simulator</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: linear-gradient(135deg, #1a472a, #0e2a1a);
+            font-family: 'Courier New', monospace;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .simulator-container {
+            max-width: 500px;
+            width: 100%;
+            background: #1a1a2e;
+            border-radius: 30px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+        .status-bar {
+            background: #0f3460;
+            padding: 8px 20px;
+            display: flex;
+            justify-content: space-between;
+            color: white;
+            font-size: 0.7rem;
+        }
+        .phone-header {
+            background: #16213e;
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid #0f3460;
+        }
+        .phone-header h1 { color: #4caf50; font-size: 1.5rem; }
+        .phone-number {
+            background: #0f3460;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #1a4a7a;
+        }
+        .phone-number input {
+            background: #1e3a5f;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 15px;
+            color: white;
+            width: 150px;
+            text-align: center;
+        }
+        .help-btn {
+            background: #ff9800;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            color: white;
+            cursor: pointer;
+        }
+        .sms-thread {
+            background: #0a0a0a;
+            height: 400px;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .message { display: flex; flex-direction: column; max-width: 85%; }
+        .message.sent { align-self: flex-end; }
+        .message.received { align-self: flex-start; }
+        .message-bubble {
+            padding: 12px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            word-wrap: break-word;
+        }
+        .message.sent .message-bubble { background: #4caf50; color: white; border-bottom-right-radius: 4px; }
+        .message.received .message-bubble { background: #2d2d3a; color: #e0e0e0; border-bottom-left-radius: 4px; }
+        .message-time { font-size: 0.65rem; color: #666; margin-top: 4px; margin-left: 8px; }
+        .sms-input-area {
+            background: #16213e;
+            padding: 15px;
+            display: flex;
+            gap: 10px;
+            border-top: 1px solid #0f3460;
+        }
+        .sms-input {
+            flex: 1;
+            background: #0f3460;
+            border: none;
+            padding: 12px 15px;
+            border-radius: 25px;
+            color: white;
+            font-family: monospace;
+        }
+        .send-btn {
+            background: #4caf50;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            color: white;
+            cursor: pointer;
+        }
+        .commands-panel {
+            background: #0f3460;
+            padding: 15px;
+            border-top: 1px solid #1a4a7a;
+        }
+        .commands-title { color: #4caf50; font-size: 0.8rem; margin-bottom: 10px; }
+        .command-chip {
+            background: #1e3a5f;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.7rem;
+            color: #aaa;
+            display: inline-block;
+            margin: 4px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="simulator-container">
+        <div class="status-bar"><span>📱 Kyera SMS</span><span>🔋 100% | 📶 4G</span></div>
+        <div class="phone-header"><h1>📱 Kyera SMS Simulator</h1><p>Feature Phone Simulation</p></div>
+        <div class="phone-number"><label>📞 Your Number:</label><input type="text" id="user-phone" value="0778624568"><button class="help-btn" onclick="sendHelp()">HELP</button></div>
+        <div class="sms-thread" id="sms-thread"><div class="message received"><div class="message-bubble">Welcome to Kyera Smart Agriculture!<br>Send HELP for available commands.</div><div class="message-time">System • Now</div></div></div>
+        <div class="sms-input-area"><input type="text" class="sms-input" id="sms-input" placeholder="Type your message..." onkeypress="if(event.key==='Enter') sendSMS()"><button class="send-btn" onclick="sendSMS()">Send SMS</button></div>
+        <div class="commands-panel"><div class="commands-title">📋 Available Commands:</div><div><div class="command-chip" onclick="insertCommand('HELP')">HELP</div><div class="command-chip" onclick="insertCommand('REGISTER John maize')">REGISTER [name] [crop]</div><div class="command-chip" onclick="insertCommand('WEATHER')">WEATHER</div><div class="command-chip" onclick="insertCommand('ALERT maize')">ALERT [crop]</div></div></div>
+    </div>
+    <script>
+        function addMessage(text, isSent) {
+            const thread = document.getElementById('sms-thread');
+            const div = document.createElement('div');
+            div.className = `message ${isSent ? 'sent' : 'received'}`;
+            const time = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+            div.innerHTML = `<div class="message-bubble">${text}</div><div class="message-time">${isSent ? 'You' : 'Kyera'} • ${time}</div>`;
+            thread.appendChild(div);
+            div.scrollIntoView({ behavior: 'smooth' });
+        }
+        function insertCommand(cmd) { document.getElementById('sms-input').value = cmd; }
+        async function sendSMS() {
+            const input = document.getElementById('sms-input');
+            const msg = input.value.trim();
+            if (!msg) return;
+            addMessage(msg, true);
+            input.value = '';
+            await processCommand(msg);
+        }
+        async function processCommand(cmd) {
+            const c = cmd.toUpperCase();
+            if (c === 'HELP') { addMessage('KYERA AG: Commands:\n• HELP\n• REGISTER [name] [crop]\n• WEATHER\n• ALERT [crop]', false); return; }
+            if (c.startsWith('REGISTER')) { addMessage('✅ Registration successful!', false); return; }
+            if (c === 'WEATHER') {
+                try {
+                    const r = await fetch('/api/weather');
+                    const d = await r.json();
+                    if (d.success) addMessage(`🌤️ ${d.data.temp}°C, ${d.data.humidity}% humidity, ${d.data.conditions}`, false);
+                    else addMessage('❌ Weather unavailable', false);
+                } catch(e) { addMessage('❌ Error', false); }
+                return;
+            }
+            if (c.startsWith('ALERT')) {
+                const crop = cmd.split(' ')[1] || 'maize';
+                try {
+                    const r = await fetch(`/api/alerts/${crop}`);
+                    const alerts = await r.json();
+                    if (alerts.length) addMessage(`📋 ${alerts.length} alerts for ${crop}`, false);
+                    else addMessage(`✅ No alerts for ${crop}`, false);
+                } catch(e) { addMessage('❌ Error', false); }
+                return;
+            }
+            addMessage('❌ Unknown command. Send HELP', false);
+        }
+        async function sendHelp() { addMessage('HELP', true); await processCommand('HELP'); }
+    </script>
+</body>
+</html>

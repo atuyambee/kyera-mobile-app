@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kyera Simulators</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: linear-gradient(135deg, #1a472a, #0e2a1a);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            width: 100%;
+        }
+        h1 {
+            text-align: center;
+            color: #4caf50;
+            margin-bottom: 30px;
+            font-size: 2rem;
+        }
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+        }
+        .card {
+            background: #1a1a2e;
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: block;
+            border: 1px solid #2e7d32;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border-color: #4caf50;
+        }
+        .card-icon {
+            font-size: 4rem;
+            margin-bottom: 15px;
+        }
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #4caf50;
+            margin-bottom: 10px;
+        }
+        .card-desc {
+            color: #aaa;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 30px;
+            color: #888;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            color: #4caf50;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📱 Kyera Simulators</h1>
+        <div class="cards">
+            <a href="/ussd-simulator" class="card">
+                <div class="card-icon">📞</div>
+                <div class="card-title">USSD Simulator</div>
+                <div class="card-desc">Test USSD menu interactions<br>Dial: *4444#</div>
+            </a>
+            <a href="/sms-simulator" class="card">
+                <div class="card-icon">💬</div>
+                <div class="card-title">SMS Simulator</div>
+                <div class="card-desc">Test SMS commands<br>Send HELP to get started</div>
+            </a>
+        </div>
+        <a href="/" class="back-link">← Back to Home</a>
+    </div>
+</body>
+</html>
