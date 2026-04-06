@@ -14,7 +14,7 @@
         .auth-btn { background: rgba(255,255,255,0.2); padding: 8px 15px; border-radius: 20px; cursor: pointer; border: none; color: white; }
         .admin-link { background: #ffc107; color: #333; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; cursor: pointer; text-decoration: none; font-weight: bold; }
         .admin-link:hover { transform: scale(1.1); background: #ffb300; }
-        .stats-bar { background: #1a1a1a; border-bottom: 1px solid #2a2a2a; padding: 15px; display: flex; justify-content: space-around; border-bottom: 1px solid #eee; }
+        .stats-bar { background: #1a1a1a; padding: 15px; display: flex; justify-content: space-around; border-bottom: 1px solid #eee; }
         .stat-item { text-align: center; flex: 1; padding: 10px; border-radius: 10px; cursor: pointer; }
         .stat-item:hover { background: #f0f0f0; }
         .stat-value { font-size: 1.8rem; font-weight: bold; color: #2E7D32; }
@@ -34,7 +34,7 @@
         .crop-selector { display: flex; margin: 15px; gap: 10px; overflow-x: auto; }
         .crop-btn { flex: 0 0 auto; padding: 12px 25px; border: none; border-radius: 25px; background: white; font-size: 1rem; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         .crop-btn:hover { background: #f0f0f0; transform: translateY(-2px); }
-        .crop-btn.active { background: #2ecc71; color: black; color: white; }
+        .crop-btn.active { background: #2E7D32; color: white; }
         .alerts-container { margin: 15px; }
         .alert { padding: 15px; border-radius: 12px; margin-bottom: 12px; color: white; cursor: pointer; transition: transform 0.2s; }
         .alert:hover { transform: translateX(5px); }
@@ -157,10 +157,10 @@
     </div>
 
     <!-- Alerts Page -->
-    <div id="alerts-page" class="page">
+    <div id="alerts-page" class="page" style="background:#0a0a0a;">
         <div class="section-title"><span>📋 All Alerts</span><span class="view-all" onclick="refreshAlerts()">↻ Refresh</span></div>
         <div class="crop-selector"><button class="crop-btn active" onclick="loadHistory('all')">📋 All</button><button class="crop-btn" onclick="loadHistory('maize')">🌽 Maize</button><button class="crop-btn" onclick="loadHistory('bananas')">🍌 Bananas</button><button class="crop-btn" onclick="loadHistory('beans')">🫘 Beans</button></div>
-        <div id="history-container" class="history-list" style="background:white; margin:15px; border-radius:12px; padding:15px;"><div class="loading-spinner"></div><div>Loading history...</div></div>
+        <div id="history-container" class="history-list" style="background:#1a1a1a; margin:15px; border-radius:12px; padding:15px; color:#e0e0e0;"><div class="loading-spinner"></div><div>Loading history...</div></div>
     </div>
 
     <!-- Profile Page -->
@@ -280,9 +280,9 @@
 
         function toggleAlertDetails(idx) { document.querySelectorAll('.alert')[idx]?.classList.toggle('expanded'); }
         function selectCrop(crop) { currentCrop = crop; document.querySelectorAll('.crop-btn').forEach(b => b.classList.remove('active')); event.target.classList.add('active'); loadAlerts(crop); }
-        function loadHistory(crop) { fetch('/api/history/' + crop).then(r => r.json()).then(alerts => { let html = ''; if (alerts.length === 0) html = '<div style="padding:20px; text-align:center;">No alerts</div>'; else alerts.forEach(a => { let cls = (a.risk || 'low').toLowerCase(); html += `<div style="padding:15px; border-bottom:1px solid #eee;"><div><strong>${a.pest}</strong> <span style="background:${cls==='high'?'#dc3545':cls==='medium'?'#fd7e14':'#ffc107'}; color:white; padding:2px 8px; border-radius:12px; font-size:11px;">${a.risk}</span></div><div style="font-size:11px; color:#999;">${new Date(a.date).toLocaleString()}</div></div>`; }); document.getElementById('history-container').innerHTML = html; }); }
+        function loadHistory(crop) { fetch('/api/history/' + crop).then(r => r.json()).then(alerts => { let html = ''; if (alerts.length === 0) html = '<div style="padding:20px; text-align:center;">No alerts</div>'; else alerts.forEach(a => { let cls = (a.risk || 'low').toLowerCase(); html += `<div style="padding:15px; border-bottom:1px solid #333;"><div><strong>${a.pest}</strong> <span style="background:${cls==='high'?'#dc3545':cls==='medium'?'#fd7e14':'#ffc107'}; color:white; padding:2px 8px; border-radius:12px; font-size:11px;">${a.risk}</span></div><div style="font-size:11px; color:#999;">${new Date(a.date).toLocaleString()}</div></div>`; }); document.getElementById('history-container').innerHTML = html; }); }
         function loadStats() { fetch('/api/stats').then(r => r.json()).then(data => { if (data.success) { document.getElementById('farmer-count').textContent = data.data.farmers; document.getElementById('alert-count').textContent = data.data.total_alerts; document.getElementById('today-count').textContent = data.data.alerts_today; } }); }
-        function viewFarmers() { fetch('/api/farmers/list').then(r => r.json()).then(farmers => { let html = farmers.map(f => `<div style="padding:10px; border-bottom:1px solid #eee;"><strong>${f.name}</strong> - ${f.phone}<br><small>${f.main_crop}</small></div>`).join(''); document.getElementById('farmers-list').innerHTML = html || '<div>No farmers</div>'; document.getElementById('farmers-modal').classList.add('active'); }); }
+        function viewFarmers() { fetch('/api/farmers/list').then(r => r.json()).then(farmers => { let html = farmers.map(f => `<div style="padding:10px; border-bottom:1px solid #333;"><strong>${f.name}</strong> - ${f.phone}<br><small>${f.main_crop}</small></div>`).join(''); document.getElementById('farmers-list').innerHTML = html || '<div>No farmers</div>'; document.getElementById('farmers-modal').classList.add('active'); }); }
         function viewAllAlerts() { showPage('alerts'); }
         function viewTodayAlerts() { showToast(`Today's Alerts: ${document.getElementById('today-count').textContent}`); }
         function refreshWeather() { loadWeather(); showToast('Weather updated'); }
@@ -486,3 +486,20 @@ displayQuestions();
     font-size: 10px;
 }
 </style>
+<script>
+// Simple farmers button
+function viewFarmers() {
+    fetch('/api/admin/farmers')
+        .then(r => r.json())
+        .then(data => {
+            let farmers = data.data || data;
+            let msg = "👥 FARMERS (" + farmers.length + "):\n";
+            farmers.forEach(f => {
+                msg += "\n📌 " + f.name + " - " + f.phone;
+                if(f.main_crop) msg += " (" + f.main_crop + ")";
+            });
+            alert(msg);
+        })
+        .catch(e => alert("Error loading farmers"));
+}
+</script>
