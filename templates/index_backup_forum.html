@@ -119,39 +119,43 @@
         <div class="section-title"><span>⚠️ Risk Alerts</span><span class="view-all" onclick="viewAllAlerts()">View All →</span></div>
         <div id="alerts-container" class="alerts-container"><div class="loading-spinner"></div><div>Loading alerts...</div></div>
 
-        
-        <!-- FARMING TIP OF THE DAY -->
-        <div style="background: linear-gradient(135deg, #1a3a2a, #0a2a1a); margin: 15px 0; padding: 15px; border-radius: 12px; cursor: pointer;" onclick="showAllTips()">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <strong style="color: #2ecc71; font-size: 18px;">🌾 FARMING TIP OF THE DAY</strong>
-                <span style="color: #2ecc71; font-size: 14px;">▼ Tap for all 50 tips</span>
-            </div>
-            <div id="dailyTip" style="margin-top: 10px; font-size: 16px; color: #ddd; line-height: 1.4;">Loading tip...</div>
-        </div>
-        
-        <div id="tipsModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 1000; overflow-y: auto;">
-            <div style="background: #1a1a1a; margin: 30px auto; max-width: 600px; padding: 20px; border-radius: 15px;">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
-                    <h3 style="color: #2ecc71; font-size: 24px;">📚 ALL 50 FARMING TIPS</h3>
-                    <button onclick="closeTips()" style="background: #e74c3c; color: white; border: none; padding: 10px 20px; border-radius: 10px; font-size: 16px; cursor: pointer;">Close</button>
-                </div>
-                <div id="tipsList" style="max-height: 500px; overflow-y: auto; font-size: 16px;"></div>
-            </div>
-        </div>
-
         <div class="section-title"><span>📊 Weather Trend</span><span class="view-all" onclick="refreshWeatherHistory()">↻ Refresh</span></div>
-        <div class="chart-card"><div class="chart-header"><span>Last 7 Days</span><span class="chart-trend" id="weather-trend">--</span></div><div class="chart" id="weather-chart"></div>
+        <div class="chart-card"><div class="chart-header"><span>Last 7 Days</span><span class="chart-trend" id="weather-trend">--</span></div>
+        <!-- Farming Tip of the Day -->
+        <div style="background: linear-gradient(135deg, #1a3a2a, #0a2a1a); margin: 15px 0; padding: 12px; border-radius: 12px; cursor: pointer;" onclick="showAllFarmingTips()">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <strong style="color: #2ecc71;">🌾 FARMING TIP OF THE DAY</strong>
+                <span style="color: #2ecc71; font-size: 10px;">▼ Tap for all 50 tips</span>
+            </div>
+            <div id="dailyFarmingTip" style="margin-top: 8px; font-size: 13px; color: #ddd;">Loading tip...</div>
+        </div>
+        
+        <!-- Farming Tips Modal -->
+        <div id="farmingTipsModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 1000; overflow-y: auto;">
+            <div style="background: #1a1a1a; margin: 30px auto; max-width: 500px; padding: 20px; border-radius: 15px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
+                    <h3 style="color: #2ecc71;">📚 50 FARMING TIPS</h3>
+                    <button onclick="closeFarmingTipsModal()" style="background: #e74c3c; color: white; border: none; padding: 5px 15px; border-radius: 10px;">Close</button>
+                </div>
+                <div id="farmingTipsList" style="max-height: 400px; overflow-y: auto;"></div>
+            </div>
+        </div>
 
-        <!-- AVERAGE STATS -->
-        <div style="display: flex; justify-content: center; gap: 40px; margin: 15px 0; padding: 12px; background: #1a2a3a; border-radius: 12px; max-width: 300px; margin-left: auto; margin-right: auto;">
-            <div style="text-align: center;">
-                <div style="font-size: 24px; font-weight: bold; color: #2ecc71;">24°C</div>
-                <div style="font-size: 14px; color: #aaa;">Average Temperature</div>
+        <div class="chart" id="weather-chart"></div>
+
+        <!-- Average Stats -->
+        <div style="display: flex; justify-content: space-between; margin: 15px 0; padding: 15px; background: #1a2a3a; border-radius: 12px;">
+            <div style="text-align: center; flex: 1;">
+                <div style="font-size: 28px; font-weight: bold; color: #2ecc71;" id="avgTempDisplay">--°C</div>
+                <div style="font-size: 12px; color: #aaa;">Average Temperature</div>
             </div>
-            <div style="text-align: center;">
-                <div style="font-size: 24px; font-weight: bold; color: #2ecc71;">72%</div>
-                <div style="font-size: 14px; color: #aaa;">Average Humidity</div>
+            <div style="text-align: center; flex: 1;">
+                <div style="font-size: 28px; font-weight: bold; color: #2ecc71;" id="avgHumidDisplay">--%</div>
+                <div style="font-size: 12px; color: #aaa;">Average Humidity</div>
             </div>
+        </div>
+
+        
         </div>
 </div>
     </div>
@@ -181,7 +185,97 @@
 
     <!-- Forum Page -->
     <div id="forum-page" class="page">
-        <div class="register-form"><h4>🌾 Farmer Community Forum</h4><p>Coming soon...</p></div>
+        <div class="section-title"><span>💬 Community Forum</span></div>
+        
+        <!-- Post Question Form -->
+        <div style="margin: 15px; padding: 15px; background: #1a1a1a; border-radius: 12px;">
+            <textarea id="forumQuestion" rows="3" placeholder="Ask a question to the farming community..." style="width:100%; padding:12px; background:#222; color:white; border:1px solid #2ecc71; border-radius:10px; margin-bottom:10px;"></textarea>
+            <button onclick="postForumQuestion()" style="background:#2ecc71; color:black; padding:10px 20px; border:none; border-radius:8px; cursor:pointer; font-weight:bold;">📝 Post Question</button>
+        </div>
+        
+        <!-- Recent Questions -->
+        <div class="section-title"><span>📋 Recent Questions & Answers</span></div>
+        <div id="forumPosts" style="margin: 15px;">
+            <div class="alert low" style="margin-bottom:12px; padding:15px;" id="post1">
+                <div class="alert-header">
+                    <span class="alert-pest">🌽 Best maize variety for this region?</span>
+                    <span class="alert-risk">Farmer John • 2 days ago</span>
+                </div>
+                <div class="alert-advice">What maize variety gives the best yield in this area? Looking for drought-resistant options.</div>
+                <div style="margin-top:8px;">
+                    <span style="color:#2ecc71; cursor:pointer;" onclick="toggleAnswers('post1')">💬 3 answers</span>
+                    <span style="color:#3498db; cursor:pointer; margin-left:15px;" onclick="showAnswerForm('post1')">✏️ Add Answer</span>
+                </div>
+                <div id="answers-post1" style="display:none; margin-top:10px; padding:10px; background:#222; border-radius:8px;">
+                    <div style="padding:8px; border-bottom:1px solid #333;">
+                        <strong>Expert Farmer</strong> <span style="color:#888; font-size:11px;">2 days ago</span>
+                        <p style="margin-top:5px;">Try DK777 or Pannar. Both are drought-resistant and yield well in this region.</p>
+                    </div>
+                    <div style="padding:8px; border-bottom:1px solid #333;">
+                        <strong>Agronomist</strong> <span style="color:#888; font-size:11px;">1 day ago</span>
+                        <p style="margin-top:5px;">Longe 5 is also good. Plant at spacing of 75cm x 50cm for best results.</p>
+                    </div>
+                    <div style="padding:8px;">
+                        <strong>Farmer Mary</strong> <span style="color:#888; font-size:11px;">1 day ago</span>
+                        <p style="margin-top:5px;">I've had success with WH505. Very drought tolerant.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="alert low" style="margin-bottom:12px; padding:15px;" id="post2">
+                <div class="alert-header">
+                    <span class="alert-pest">🐛 Organic pest control methods</span>
+                    <span class="alert-risk">Expert Farmer • 5 days ago</span>
+                </div>
+                <div class="alert-advice">How to control armyworms naturally without chemicals? Need organic solutions.</div>
+                <div style="margin-top:8px;">
+                    <span style="color:#2ecc71; cursor:pointer;" onclick="toggleAnswers('post2')">💬 3 answers</span>
+                    <span style="color:#3498db; cursor:pointer; margin-left:15px;" onclick="showAnswerForm('post2')">✏️ Add Answer</span>
+                </div>
+                <div id="answers-post2" style="display:none; margin-top:10px; padding:10px; background:#222; border-radius:8px;">
+                    <div style="padding:8px; border-bottom:1px solid #333;">
+                        <strong>Organic Farmer</strong> <span style="color:#888; font-size:11px;">4 days ago</span>
+                        <p style="margin-top:5px;">Use neem oil spray - mix 5ml neem oil with 1 liter water and few drops of soap.</p>
+                    </div>
+                    <div style="padding:8px; border-bottom:1px solid #333;">
+                        <strong>Expert</strong> <span style="color:#888; font-size:11px;">3 days ago</span>
+                        <p style="margin-top:5px;">Introduce natural predators like ladybugs and parasitic wasps.</p>
+                    </div>
+                    <div style="padding:8px;">
+                        <strong>Farmer John</strong> <span style="color:#888; font-size:11px;">2 days ago</span>
+                        <p style="margin-top:5px;">Plant companion crops like marigolds and garlic to repel pests naturally.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Answer Form Modal -->
+        <div id="answerModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 1000;">
+            <div style="background: #1a1a1a; margin: 30px auto; max-width: 500px; padding: 20px; border-radius: 15px;">
+                <h3 style="color: #2ecc71;">✏️ Add Your Answer</h3>
+                <textarea id="answerText" rows="4" placeholder="Write your answer here..." style="width:100%; padding:12px; background:#222; color:white; border:1px solid #2ecc71; border-radius:10px; margin:15px 0;"></textarea>
+                <button onclick="submitAnswer()" style="background:#2ecc71; color:black; padding:10px 20px; border:none; border-radius:8px; cursor:pointer; font-weight:bold;">Submit Answer</button>
+                <button onclick="closeAnswerModal()" style="background:#e74c3c; color:white; padding:10px 20px; border:none; border-radius:8px; cursor:pointer; margin-left:10px;">Cancel</button>
+            </div>
+        </div>
+    </div>
+            <div class="alert low" style="margin-bottom:12px; padding:15px;">
+                <div class="alert-header">
+                    <span class="alert-pest">🐛 Organic pest control methods</span>
+                    <span class="alert-risk">Expert Farmer • 5 days ago</span>
+                </div>
+                <div class="alert-advice">How to control armyworms naturally without chemicals? Need organic solutions.</div>
+                <div style="margin-top:8px;"><span style="color:#2ecc71; cursor:pointer;" onclick="toggleAnswers('post2')">💬 5 answers</span></div>
+            </div>
+            <div class="alert low" style="margin-bottom:12px; padding:15px;">
+                <div class="alert-header">
+                    <span class="alert-pest">💧 Best irrigation method for small farms</span>
+                    <span class="alert-risk">Mary • 1 week ago</span>
+                </div>
+                <div class="alert-advice">Drip irrigation vs sprinkler - which is better for small-scale farmers with limited water?</div>
+                <div style="margin-top:8px;"><span style="color:#2ecc71; cursor:pointer;" onclick="toggleAnswers('post3')">💬 2 answers</span></div>
+            </div>
+        </div>
     </div>
 
     <!-- Login Modal -->
@@ -324,143 +418,248 @@
     </script>
 
 <script>
-const allFarmingTips = ['💧 Water crops early morning or late evening', '🧪 Test soil pH regularly (6.0-7.0)', '🔄 Rotate crops each season', '🐞 Introduce ladybugs to control aphids', '🍂 Apply organic mulch to retain moisture', '🌱 Plant cover crops for soil fertility', '💦 Use drip irrigation for water efficiency', '♻️ Compost crop residues', '👀 Monitor fields weekly for pests', '🧴 Apply fertilizers based on soil test', '✂️ Prune diseased plants immediately', '🛡️ Use disease-resistant varieties', '📏 Maintain proper plant spacing', '🌽 Harvest at right maturity stage', '📦 Store produce in cool, dry conditions', '🧹 Clean equipment between fields', '🦋 Use integrated pest management', '🌿 Apply neem oil as natural pesticide', '🪤 Install pheromone traps', '🧼 Practice proper sanitation', '📐 Use raised beds for drainage', '🧪 Apply lime to acidic soils', '⚪ Use sulfur to lower pH', '🌾 Add organic matter to soil', '🚫 Avoid working in wet soil', '🌳 Use windbreaks for crop protection', '🕶️ Install shade nets for sensitive crops', '🌽 Practice intercropping', '🥒 Use trellises for climbing crops', '🌱 Save seeds from best plants', '📝 Keep records of planting dates', '🤝 Join a farmer cooperative', '📚 Attend agricultural training', '🌤️ Use weather forecasts for planning', '📏 Install rain gauges', '💧 Build water harvesting structures', '☀️ Use solar-powered pumps', '🌎 Practice conservation tillage', '🌲 Plant trees as windbreaks', '🐝 Use biological control agents', '🦟 Apply Bt for caterpillars', '🟡 Use yellow sticky traps', '💪 Apply potassium silicate', '🪞 Use reflective mulches', '🌿 Practice trap cropping', '🕷️ Release predatory mites', '🍄 Apply copper fungicides', '⚪ Use sulfur for powdery mildew', '🧹 Practice field sanitation', '📖 Keep learning new techniques'];
-let currentTipIndex = Math.floor(Math.random() * allFarmingTips.length);
-document.getElementById('dailyTip').innerHTML = allFarmingTips[currentTipIndex];
+// 50 Farming Tips
+const farmingTipsList = [
+    "💧 Water crops early morning or late evening to reduce evaporation",
+    "🧪 Test soil pH regularly. Most crops thrive in pH 6.0-7.0",
+    "🔄 Rotate crops each season to prevent soil nutrient depletion",
+    "🐞 Introduce beneficial insects like ladybugs to control aphids",
+    "🍂 Apply organic mulch to retain moisture and suppress weeds",
+    "🌱 Plant cover crops to improve soil fertility",
+    "💦 Use drip irrigation for efficient water use",
+    "♻️ Compost crop residues to recycle nutrients",
+    "👀 Monitor fields weekly for early pest detection",
+    "🧴 Apply fertilizers based on soil test results",
+    "✂️ Prune diseased plant parts immediately",
+    "🛡️ Use disease-resistant crop varieties",
+    "📏 Maintain proper plant spacing for good air circulation",
+    "🌽 Harvest crops at the right maturity stage",
+    "📦 Store produce in cool, dry conditions",
+    "🧹 Clean farm equipment between fields",
+    "🦋 Use integrated pest management (IPM) strategies",
+    "🌿 Apply neem oil as a natural pesticide",
+    "🪤 Install pheromone traps for monitoring pests",
+    "🧼 Practice proper sanitation to remove pest habitats",
+    "📐 Use raised beds for better drainage",
+    "🧪 Apply lime to acidic soils to raise pH",
+    "⚪ Use sulfur to lower pH in alkaline soils",
+    "🌾 Incorporate organic matter to improve soil structure",
+    "🚫 Avoid working in wet soil to prevent compaction",
+    "🌳 Use windbreaks to protect crops from strong winds",
+    "🕶️ Install shade nets for sensitive crops",
+    "🌽 Practice intercropping to maximize land use",
+    "🥒 Use trellises for climbing crops",
+    "🌱 Save seeds from best-performing plants",
+    "📝 Keep detailed records of planting dates",
+    "🤝 Join a farmer cooperative to share knowledge",
+    "📚 Attend agricultural extension training",
+    "🌤️ Use weather forecasts to plan planting",
+    "📏 Install rain gauges to track precipitation",
+    "💧 Build water harvesting structures for dry seasons",
+    "☀️ Use solar-powered pumps for irrigation",
+    "🌎 Practice conservation tillage to reduce erosion",
+    "🌲 Plant trees on field boundaries as windbreaks",
+    "🐝 Use biological control agents like Trichogramma wasps",
+    "🦟 Apply Bacillus thuringiensis (Bt) for caterpillars",
+    "🟡 Use yellow sticky traps for whitefly monitoring",
+    "💪 Apply potassium silicate to strengthen plant cell walls",
+    "🪞 Use reflective mulches to repel aphids",
+    "🌿 Practice trap cropping to lure pests away",
+    "🕷️ Release predatory mites for spider mite control",
+    "🍄 Apply copper-based fungicides for fungal diseases",
+    "⚪ Use sulfur dust for powdery mildew control",
+    "🧹 Practice field sanitation to remove infected plants",
+    "📖 Keep learning and adapting to new farming techniques"
+];
 
-function showAllTips() {
-    const modal = document.getElementById('tipsModal');
-    const listDiv = document.getElementById('tipsList');
-    listDiv.innerHTML = allFarmingTips.map((tip, i) => 
-        `<div style="padding: 12px; border-bottom: 1px solid #333; cursor: pointer; font-size: 16px;" onclick="selectTip(${i})">${tip}</div>`
+let currentTip = Math.floor(Math.random() * farmingTipsList.length);
+document.getElementById('dailyFarmingTip').innerHTML = farmingTipsList[currentTip];
+
+function showAllFarmingTips() {
+    const modal = document.getElementById('farmingTipsModal');
+    const listDiv = document.getElementById('farmingTipsList');
+    listDiv.innerHTML = farmingTipsList.map((tip, i) => 
+        `<div style="padding: 10px; border-bottom: 1px solid #333; cursor: pointer; color: #ddd;" onclick="selectFarmingTip(${i})">${tip}</div>`
     ).join('');
     modal.style.display = 'block';
 }
 
-function selectTip(index) {
-    currentTipIndex = index;
-    document.getElementById('dailyTip').innerHTML = allFarmingTips[currentTipIndex];
-    closeTips();
+function selectFarmingTip(index) {
+    currentTip = index;
+    document.getElementById('dailyFarmingTip').innerHTML = farmingTipsList[currentTip];
+    closeFarmingTipsModal();
 }
 
-function closeTips() {
-    document.getElementById('tipsModal').style.display = 'none';
+function closeFarmingTipsModal() {
+    document.getElementById('farmingTipsModal').style.display = 'none';
 }
 
-// Force data load
-setTimeout(function() {
-    fetch('/api/stats').then(r=>r.json()).then(d=>{
-        if(d.success){
-            document.getElementById('farmer-count').innerText = d.data.farmers;
-            document.getElementById('alert-count').innerText = d.data.total_alerts;
-            document.getElementById('today-count').innerText = d.data.alerts_today;
-        }
-    });
-    fetch('/api/weather').then(r=>r.json()).then(d=>{
-        if(d.success){
-            document.getElementById('temperature').innerText = Math.round(d.data.temp)+'°C';
-            document.getElementById('humidity').innerHTML = 'Humidity: '+d.data.humidity+'%';
-        }
-    });
-}, 500);
+// Load averages
+function loadWeatherAverages() {
+    fetch('/api/weather/history?days=7')
+        .then(r => r.json())
+        .then(data => {
+            if (data.success && data.data && data.data.length) {
+                let temps = data.data.map(d => d.temperature);
+                let hums = data.data.map(d => d.humidity);
+                let avgTemp = (temps.reduce((a,b) => a + b, 0) / temps.length).toFixed(0);
+                let avgHum = (hums.reduce((a,b) => a + b, 0) / hums.length).toFixed(0);
+                
+                let tEl = document.getElementById('avgTempDisplay');
+                let hEl = document.getElementById('avgHumidDisplay');
+                if (tEl) tEl.innerHTML = avgTemp + '°C';
+                if (hEl) hEl.innerHTML = avgHum + '%';
+            }
+        })
+        .catch(e => console.log(e));
+}
+
+setTimeout(loadWeatherAverages, 1500);
+</script>
+
+
+<script>
+function loadAverages() {
+    fetch('/api/weather/history?days=7')
+        .then(r => r.json())
+        .then(data => {
+            if (data.success && data.data && data.data.length) {
+                let temps = data.data.map(d => d.temperature);
+                let hums = data.data.map(d => d.humidity);
+                let avgTemp = (temps.reduce((a,b) => a + b, 0) / temps.length).toFixed(0);
+                let avgHum = (hums.reduce((a,b) => a + b, 0) / hums.length).toFixed(0);
+                let tEl = document.getElementById('avgTempDisplay');
+                let hEl = document.getElementById('avgHumidDisplay');
+                if (tEl) tEl.innerHTML = avgTemp + '°C';
+                if (hEl) hEl.innerHTML = avgHum + '%';
+            }
+        })
+        .catch(e => console.log(e));
+}
+setTimeout(loadAverages, 1500);
+</script>
+
+
+<script>
+function postForumQuestion() {
+    const question = document.getElementById('forumQuestion').value;
+    if (!question.trim()) {
+        alert('Please enter your question');
+        return;
+    }
+    const forumPosts = document.getElementById('forumPosts');
+    const newPost = document.createElement('div');
+    newPost.className = 'alert low';
+    newPost.style.marginBottom = '12px';
+    newPost.style.padding = '15px';
+    newPost.innerHTML = `
+        <div class="alert-header">
+            <span class="alert-pest">💬 New Question</span>
+            <span class="alert-risk">Just now</span>
+        </div>
+        <div class="alert-advice">${question.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>
+        <div style="margin-top:8px;"><span style="color:#2ecc71; cursor:pointer;" onclick="showAnswers(this)">💬 0 answers</span></div>
+    `;
+    forumPosts.insertBefore(newPost, forumPosts.firstChild);
+    document.getElementById('forumQuestion').value = '';
+    alert('Your question has been posted!');
+}
+
+function showAnswers(postId) {
+    // This function is replaced by toggleAnswers
+    toggleAnswers(postId);
+}
+</script>
+
+
+<script>
+let currentPostId = null;
+
+function toggleAnswers(postId) {
+    const answersDiv = document.getElementById('answers-' + postId);
+    const showBtn = event.target;
+    if (answersDiv.style.display === 'none') {
+        answersDiv.style.display = 'block';
+        const answerCount = answersDiv.children.length;
+        showBtn.innerHTML = `💬 Hide ${answerCount} answers`;
+    } else {
+        answersDiv.style.display = 'none';
+        const answerCount = answersDiv.children.length;
+        showBtn.innerHTML = `💬 Show ${answerCount} answers`;
+    }
+}
+
+function showAnswerForm(postId) {
+    currentPostId = postId;
+    document.getElementById('answerModal').style.display = 'block';
+}
+
+function closeAnswerModal() {
+    document.getElementById('answerModal').style.display = 'none';
+    document.getElementById('answerText').value = '';
+}
+
+function submitAnswer() {
+    const answer = document.getElementById('answerText').value;
+    if (!answer.trim()) {
+        alert('Please enter your answer');
+        return;
+    }
+    
+    const answersDiv = document.getElementById('answers-' + currentPostId);
+    const newAnswer = document.createElement('div');
+    newAnswer.style.padding = '8px';
+    newAnswer.style.borderBottom = '1px solid #333';
+    newAnswer.innerHTML = `
+        <strong>You</strong> <span style="color:#888; font-size:11px;">Just now</span>
+        <p style="margin-top:5px;">${answer.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</p>
+    `;
+    answersDiv.insertBefore(newAnswer, answersDiv.firstChild);
+    
+    // Update answer count
+    const answerCount = answersDiv.children.length;
+    const showBtn = document.getElementById(currentPostId).querySelector('span[onclick*="toggleAnswers"]');
+    if (answersDiv.style.display === 'block') {
+        showBtn.innerHTML = `💬 Hide ${answerCount} answers`;
+    } else {
+        showBtn.innerHTML = `💬 Show ${answerCount} answers`;
+    }
+    
+    closeAnswerModal();
+    alert('Your answer has been posted!');
+}
+
+function postForumQuestion() {
+    const question = document.getElementById('forumQuestion').value;
+    if (!question.trim()) {
+        alert('Please enter your question');
+        return;
+    }
+    
+    const forumPosts = document.getElementById('forumPosts');
+    const postId = 'post' + Date.now();
+    const newPost = document.createElement('div');
+    newPost.className = 'alert low';
+    newPost.style.marginBottom = '12px';
+    newPost.style.padding = '15px';
+    newPost.id = postId;
+    newPost.innerHTML = `
+        <div class="alert-header">
+            <span class="alert-pest">💬 New Question</span>
+            <span class="alert-risk">Just now</span>
+        </div>
+        <div class="alert-advice">${question.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>
+        <div style="margin-top:8px;">
+            <span style="color:#2ecc71; cursor:pointer;" onclick="toggleAnswers('${postId}')">💬 Show 0 answers</span>
+            <span style="color:#3498db; cursor:pointer; margin-left:15px;" onclick="showAnswerForm('${postId}')">✏️ Add Answer</span>
+        </div>
+        <div id="answers-${postId}" style="display:none; margin-top:10px; padding:10px; background:#222; border-radius:8px;"></div>
+    `;
+    forumPosts.insertBefore(newPost, forumPosts.firstChild);
+    document.getElementById('forumQuestion').value = '';
+    alert('Your question has been posted! Farmers can now answer it.');
+}
 </script>
 
 </body>
 </html>
-
-<!-- Forum Page -->
-<div id="forum-page" class="page">
-    <div class="section-title"><span style="font-size: 20px;">💬 Community Forum</span></div>
-    
-    <!-- Ask Question -->
-    <div style="margin: 15px; padding: 20px; background: #1a1a1a; border-radius: 15px;">
-        <input type="text" id="forumTitle" placeholder="Question title" style="width:100%; padding: 15px; font-size: 16px; margin-bottom: 15px; background: #222; color: white; border: 1px solid #2ecc71; border-radius: 10px;">
-        <textarea id="forumQuestion" rows="3" placeholder="Your question..." style="width:100%; padding: 15px; font-size: 16px; background: #222; color: white; border: 1px solid #2ecc71; border-radius: 10px;"></textarea>
-        <button onclick="postQuestion()" style="margin-top: 15px; background: #2ecc71; color: black; padding: 15px; font-size: 18px; font-weight: bold; border: none; border-radius: 10px; cursor: pointer; width: 100%;">📝 POST QUESTION</button>
-    </div>
-    
-    <!-- Questions List -->
-    <div id="questionsFeed" style="margin: 15px;"></div>
-</div>
-
-<script>
-let forumQuestions = [];
-
-function displayQuestions() {
-    let container = document.getElementById('questionsFeed');
-    if(!container) return;
-    
-    if(forumQuestions.length === 0) {
-        container.innerHTML = '<div style="background:#1a1a1a; padding:40px; text-align:center; border-radius:15px; font-size:16px;">📭 No questions yet. Be the first to ask!</div>';
-        return;
-    }
-    
-    let html = '';
-    for(let i = 0; i < forumQuestions.length; i++) {
-        let q = forumQuestions[i];
-        html += '<div style="background:#1a1a1a; padding:20px; border-radius:15px; margin-bottom:15px;">';
-        html += '<div style="font-weight:bold; color:#2ecc71; font-size:18px;">' + q.title + '</div>';
-        html += '<div style="margin:12px 0; color:#ddd; font-size:16px;">' + q.question + '</div>';
-        html += '<div style="margin-top:15px;">';
-        html += '<button onclick="toggleAnswers(' + i + ')" style="background:#3498db; color:white; padding:10px 20px; font-size:14px; border:none; border-radius:8px; cursor:pointer; margin-right:10px;">' + (q.showAnswers ? '🙈 HIDE' : '👁️ SHOW') + ' ANSWERS (' + q.answers.length + ')</button>';
-        html += '<button onclick="addAnswer(' + i + ')" style="background:#2ecc71; color:black; padding:10px 20px; font-size:14px; border:none; border-radius:8px; cursor:pointer;">✏️ ADD ANSWER</button>';
-        html += '</div>';
-        
-        if(q.showAnswers) {
-            html += '<div style="margin-top:15px; padding:15px; background:#222; border-radius:10px;">';
-            if(q.answers.length === 0) {
-                html += '<div style="padding:10px; color:#888; font-size:14px;">No answers yet. Be the first to answer!</div>';
-            } else {
-                for(let j = 0; j < q.answers.length; j++) {
-                    html += '<div style="padding:12px; border-bottom:1px solid #333; font-size:15px;">💡 ' + q.answers[j] + '</div>';
-                }
-            }
-            html += '</div>';
-        }
-        html += '</div>';
-    }
-    container.innerHTML = html;
-}
-
-function postQuestion() {
-    let title = document.getElementById('forumTitle').value;
-    let question = document.getElementById('forumQuestion').value;
-    if(!title || !question) {
-        alert('⚠️ Please enter both title and question');
-        return;
-    }
-    forumQuestions.unshift({
-        title: title,
-        question: question,
-        answers: [],
-        showAnswers: false
-    });
-    document.getElementById('forumTitle').value = '';
-    document.getElementById('forumQuestion').value = '';
-    displayQuestions();
-    alert('✅ Your question has been posted!');
-}
-
-function toggleAnswers(index) {
-    forumQuestions[index].showAnswers = !forumQuestions[index].showAnswers;
-    displayQuestions();
-}
-
-function addAnswer(index) {
-    let answer = prompt('📝 Enter your answer:');
-    if(answer && answer.trim()) {
-        forumQuestions[index].answers.push(answer);
-        displayQuestions();
-        alert('✅ Answer added!');
-    }
-}
-
-// Sample questions to start
-forumQuestions = [
-    {title: "🌽 Best maize variety?", question: "Which maize variety gives the best yield in this region?", answers: ["🌽 DK777 - Very drought resistant", "🌽 Longe 5 - Good yields", "🌽 WH505 - Works well here"], showAnswers: false},
-    {title: "🐛 Organic pest control", question: "How to control armyworms naturally without chemicals?", answers: ["🌿 Neem oil spray", "🐞 Introduce ladybugs", "🌸 Plant marigolds"], showAnswers: false},
-    {title: "💧 Best irrigation method", question: "Drip irrigation vs sprinkler for small farms?", answers: ["💧 Drip saves 50% water", "💧 Sprinkler cheaper to install"], showAnswers: false}
-];
-
-displayQuestions();
-</script>

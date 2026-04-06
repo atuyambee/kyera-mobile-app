@@ -1,0 +1,1206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Kyera Smart Ag</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        body { background: #f5f5f5; padding-bottom: 70px; }
+        .header { background: linear-gradient(135deg, #2E7D32, #4CAF50); color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+        .header h2 { margin: 0; font-size: 1.5rem; }
+        .header-right { display: flex; gap: 15px; align-items: center; }
+        .language-toggle { background: rgba(255,255,255,0.2); padding: 8px 15px; border-radius: 20px; cursor: pointer; font-size: 0.9rem; }
+        .auth-btn { background: rgba(255,255,255,0.2); padding: 8px 15px; border-radius: 20px; cursor: pointer; border: none; color: white; }
+        .admin-link { background: #ffc107; color: #333; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; cursor: pointer; text-decoration: none; font-weight: bold; }
+        .admin-link:hover { transform: scale(1.1); background: #ffb300; }
+        .stats-bar { background: white; padding: 15px; display: flex; justify-content: space-around; border-bottom: 1px solid #eee; }
+        .stat-item { text-align: center; flex: 1; padding: 10px; border-radius: 10px; cursor: pointer; }
+        .stat-item:hover { background: #f0f0f0; }
+        .stat-value { font-size: 1.8rem; font-weight: bold; color: #2E7D32; }
+        .stat-label { font-size: 0.9rem; color: #666; }
+        .weather-card { background: white; margin: 15px; padding: 20px; border-radius: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); cursor: pointer; }
+        .weather-main { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .temp { font-size: 48px; font-weight: bold; color: #333; }
+        .weather-icon { font-size: 48px; }
+        .humidity { color: #666; margin-top: 5px; font-size: 0.9rem; }
+        .forecast { display: flex; justify-content: space-between; margin-top: 15px; padding-top: 15px; border-top: 1px solid #eee; }
+        .forecast-item { text-align: center; flex: 1; padding: 5px; border-radius: 8px; cursor: pointer; }
+        .forecast-item:hover { background: #f5f5f5; }
+        .forecast-temp { font-weight: bold; font-size: 1.1rem; }
+        .section-title { margin: 20px 15px 10px; font-size: 1.1rem; display: flex; justify-content: space-between; align-items: center; }
+        .view-all { color: #2E7D32; font-size: 0.9rem; cursor: pointer; padding: 5px 10px; border-radius: 20px; }
+        .view-all:hover { background: #e8f5e9; }
+        .crop-selector { display: flex; margin: 15px; gap: 10px; overflow-x: auto; }
+        .crop-btn { flex: 0 0 auto; padding: 12px 25px; border: none; border-radius: 25px; background: white; font-size: 1rem; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .crop-btn:hover { background: #f0f0f0; transform: translateY(-2px); }
+        .crop-btn.active { background: #2E7D32; color: white; }
+        .alerts-container { margin: 15px; }
+        .alert { padding: 15px; border-radius: 12px; margin-bottom: 12px; color: white; cursor: pointer; transition: transform 0.2s; }
+        .alert:hover { transform: translateX(5px); }
+        .alert.high { background: linear-gradient(135deg, #dc3545, #c82333); }
+        .alert.medium { background: linear-gradient(135deg, #fd7e14, #e06b0a); }
+        .alert.low { background: linear-gradient(135deg, #ffc107, #e0a800); color: #333; }
+        .alert-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .alert-pest { font-weight: bold; font-size: 1.2rem; }
+        .alert-risk { background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; }
+        .alert-advice { font-size: 0.95rem; margin: 8px 0; line-height: 1.4; }
+        .alert-details { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; background: rgba(255,255,255,0.1); border-radius: 8px; margin-top: 10px; }
+        .alert.expanded .alert-details { max-height: 300px; padding: 15px; }
+        .prevention-tip, .treatment-tip { margin-bottom: 12px; font-size: 0.9rem; }
+        .chart-card { background: white; margin: 15px; padding: 20px; border-radius: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .chart { display: flex; align-items: flex-end; justify-content: space-around; gap: 8px; margin-top: 20px; min-height: 180px; }
+        .chart-bar-wrapper { flex: 1; display: flex; flex-direction: column; align-items: center; }
+        .chart-bar { width: 35px; background: linear-gradient(to top, #2E7D32, #4CAF50); border-radius: 8px 8px 0 0; position: relative; min-height: 30px; }
+        .chart-value { position: absolute; top: -25px; left: 50%; transform: translateX(-50%); font-size: 12px; font-weight: bold; color: #2E7D32; background: rgba(255,255,255,0.9); padding: 2px 6px; border-radius: 12px; }
+        .chart-label { margin-top: 8px; font-size: 12px; color: #555; }
+        .register-form { background: white; margin: 15px; padding: 25px; border-radius: 15px; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; color: #555; font-weight: 500; }
+        .form-group input, .form-group select { width: 100%; padding: 12px 15px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 1rem; }
+        .form-group input:focus { outline: none; border-color: #2E7D32; }
+        .btn { background: #2E7D32; color: white; border: none; padding: 15px 20px; border-radius: 10px; width: 100%; font-size: 1.1rem; font-weight: bold; cursor: pointer; }
+        .btn:hover { background: #1e5e22; }
+        .btn-outline { background: white; border: 2px solid #2E7D32; color: #2E7D32; }
+        .btn-small { padding: 8px 15px; font-size: 0.9rem; width: auto; }
+        .profile-view { background: #e8f5e9; padding: 15px; border-radius: 10px; margin-bottom: 20px; }
+        .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; padding: 20px; }
+        .modal.active { display: flex; }
+        .modal-content { background: white; width: 100%; max-width: 400px; border-radius: 20px; padding: 25px; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .modal-close { font-size: 28px; cursor: pointer; color: #999; }
+        .nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; display: flex; padding: 10px 0; border-radius: 20px 20px 0 0; box-shadow: 0 -5px 20px rgba(0,0,0,0.1); z-index: 100; }
+        .nav-item { flex: 1; text-align: center; padding: 12px; cursor: pointer; color: #999; transition: all 0.3s; border-radius: 10px; margin: 0 5px; }
+        .nav-item:hover { background: #f5f5f5; color: #2E7D32; }
+        .nav-item.active { color: #2E7D32; background: #e8f5e9; }
+        .nav-item i { font-size: 24px; display: block; margin-bottom: 4px; }
+        .nav-item span { font-size: 12px; font-weight: 500; }
+        .badge { position: absolute; top: 0; right: 15px; background: #dc3545; color: white; border-radius: 50%; padding: 2px 6px; font-size: 10px; }
+        .page { display: none; }
+        .page.active-page { display: block; }
+        .toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: white; padding: 10px 20px; border-radius: 25px; font-size: 14px; z-index: 1000; animation: fadeInOut 2s ease; display: none; }
+        @keyframes fadeInOut { 0% { opacity: 0; bottom: 60px; } 10% { opacity: 1; bottom: 80px; } 90% { opacity: 1; bottom: 80px; } 100% { opacity: 0; bottom: 60px; } }
+        .loading-spinner { border: 3px solid #f3f3f3; border-top: 3px solid #2E7D32; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h2>🌱 Kyera Smart Ag</h2>
+        <div class="header-right">
+            <div class="language-toggle" id="langToggle" onclick="toggleLanguage()">🇺🇬 Runyankole</div>
+            <div id="auth-section"><button class="auth-btn" id="login-btn" onclick="showLoginModal()">Login</button></div>
+            <a href="/admin" class="admin-link" id="admin-link" style="display: none;">👑</a>
+        </div>
+    </div>
+
+    <div class="stats-bar">
+        <div class="stat-item" onclick="viewFarmers()"><div class="stat-value" id="farmer-count">0</div><div class="stat-label">Total Farmers</div></div>
+        <div class="stat-item" onclick="viewAllAlerts()"><div class="stat-value" id="alert-count">0</div><div class="stat-label">Alerts</div></div>
+        <div class="stat-item" onclick="viewTodayAlerts()"><div class="stat-value" id="today-count">0</div><div class="stat-label">Today's Alerts</div></div>
+    </div>
+
+    <!-- Home Page -->
+    <div id="home-page" class="page active-page">
+        <div class="weather-card" onclick="refreshWeather()">
+            <div class="weather-main"><div><div class="temp" id="temperature">--°C</div><div id="weather-desc">Loading...</div><div class="humidity" id="humidity">--%</div></div><div class="weather-icon" id="weather-icon">🌤️</div></div>
+            <div class="forecast" id="forecast"><div class="forecast-item"><div>Mon</div><span class="forecast-temp">--°</span></div><div class="forecast-item"><div>Tue</div><span class="forecast-temp">--°</span></div><div class="forecast-item"><div>Wed</div><span class="forecast-temp">--°</span></div><div class="forecast-item"><div>Thu</div><span class="forecast-temp">--°</span></div><div class="forecast-item"><div>Fri</div><span class="forecast-temp">--°</span></div></div>
+        </div>
+
+        <div class="section-title"><span>🌾 Select Crop</span></div>
+        <div class="crop-selector">
+            <button class="crop-btn active" onclick="selectCrop('maize')">🌽 Maize</button>
+            <button class="crop-btn" onclick="selectCrop('bananas')">🍌 Bananas</button>
+            <button class="crop-btn" onclick="selectCrop('beans')">🫘 Beans</button>
+            <button class="crop-btn" onclick="selectCrop('general')">🌱 General</button>
+        </div>
+
+        <div class="section-title"><span>⚠️ Risk Alerts</span><span class="view-all" onclick="viewAllAlerts()">View All →</span></div>
+        <div id="alerts-container" class="alerts-container"><div class="loading-spinner"></div><div>Loading alerts...</div></div>
+
+        <div class="section-title"><span>📊 Weather Trend</span><span class="view-all" onclick="refreshWeatherHistory()">↻ Refresh</span></div>
+        <div class="chart-card"><div class="chart-header"><span>Last 7 Days</span><span class="chart-trend" id="weather-trend">--</span></div>
+        <!-- Farming Tip of the Day -->
+        <div style="background: linear-gradient(135deg, #1a3a2a, #0a2a1a); margin: 15px 0; padding: 12px; border-radius: 12px; cursor: pointer;" onclick="showAllFarmingTips()">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <strong style="color: #2ecc71;">🌾 FARMING TIP OF THE DAY</strong>
+                <span style="color: #2ecc71; font-size: 10px;">▼ Tap for all 50 tips</span>
+            </div>
+            <div id="dailyFarmingTip" style="margin-top: 8px; font-size: 13px; color: #ddd;">Loading tip...</div>
+        </div>
+        
+        <!-- Farming Tips Modal -->
+        <div id="farmingTipsModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 1000; overflow-y: auto;">
+            <div style="background: #1a1a1a; margin: 30px auto; max-width: 500px; padding: 20px; border-radius: 15px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
+                    <h3 style="color: #2ecc71;">📚 50 FARMING TIPS</h3>
+                    <button onclick="closeFarmingTipsModal()" style="background: #e74c3c; color: white; border: none; padding: 5px 15px; border-radius: 10px;">Close</button>
+                </div>
+                <div id="farmingTipsList" style="max-height: 400px; overflow-y: auto;"></div>
+            </div>
+        </div>
+
+        <div class="chart" id="weather-chart"></div>
+
+        <!-- Average Stats -->
+        <div style="display: flex; justify-content: space-between; margin: 15px 0; padding: 15px; background: #1a2a3a; border-radius: 12px;">
+            <div style="text-align: center; flex: 1;">
+                <div style="font-size: 28px; font-weight: bold; color: #2ecc71;" id="avgTempDisplay">--°C</div>
+                <div style="font-size: 12px; color: #aaa;">Average Temperature</div>
+            </div>
+            <div style="text-align: center; flex: 1;">
+                <div style="font-size: 28px; font-weight: bold; color: #2ecc71;" id="avgHumidDisplay">--%</div>
+                <div style="font-size: 12px; color: #aaa;">Average Humidity</div>
+            </div>
+        </div>
+
+        
+        </div>
+</div>
+    </div>
+
+    <!-- Alerts Page -->
+    <div id="alerts-page" class="page">
+        <div class="section-title"><span>📋 All Alerts</span><span class="view-all" onclick="refreshAlerts()">↻ Refresh</span></div>
+        <div class="crop-selector"><button class="crop-btn active" onclick="loadHistory('all')">📋 All</button><button class="crop-btn" onclick="loadHistory('maize')">🌽 Maize</button><button class="crop-btn" onclick="loadHistory('bananas')">🍌 Bananas</button><button class="crop-btn" onclick="loadHistory('beans')">🫘 Beans</button></div>
+        <div id="history-container" class="history-list" style="background:white; margin:15px; border-radius:12px; padding:15px;"><div class="loading-spinner"></div><div>Loading history...</div></div>
+    </div>
+
+    <!-- Profile Page -->
+    <div id="profile-page" class="page">
+        <div class="register-form">
+            <h4>👤 Farmer Registration / Login</h4>
+            <div id="profile-view" class="profile-view" style="display:none;"><h5>Welcome, <span id="profile-name-display"></span>!</h5><p>📞 Phone: <span id="profile-phone-display"></span></p><p>🌾 Crop: <span id="profile-crop-display"></span></p><p>📍 Village: <span id="profile-village-display"></span></p><button class="btn-outline btn-small" onclick="logout()">Logout</button></div>
+            <div id="login-form"><div class="form-group"><label>Name or Phone Number</label><input type="text" id="login-phone" placeholder="e.g., Kyera Farmer or 256700000000"></div><div class="form-group"><label>Password</label><input type="password" id="login-password" placeholder="Your password"></div><button class="btn" onclick="login()">Login</button><hr style="margin:20px 0;"><h5>New Farmer? Register here:</h5></div>
+            <div class="form-group"><label>Full Name</label><input type="text" id="reg-name" placeholder="Enter your name"></div>
+            <div class="form-group"><label>Phone Number</label><input type="tel" id="reg-phone" placeholder="07XXXXXXXX"></div>
+            <div class="form-group"><label>Village</label><input type="text" id="reg-village" placeholder="Your village"></div>
+            <div class="form-group"><label>Main Crop</label><select id="reg-crop"><option value="maize">Maize</option><option value="bananas">Bananas</option><option value="beans">Beans</option></select></div>
+            <div class="form-group"><label>Farm Size (acres)</label><input type="number" id="reg-size" step="0.1" placeholder="e.g., 2.5"></div>
+            <div class="form-group"><label>Other Crops</label><input type="text" id="reg-other" placeholder="e.g., coffee, cassava"></div>
+            <button class="btn" onclick="registerFarmer()">Register / Update</button>
+        </div>
+    </div>
+
+    <!-- Forum Page -->
+    
+
+<script>
+
+
+
+    
+    let html = '';
+    for(let i = 0; i < questionsList.length; i++) {
+        let q = questionsList[i];
+        html += '<div style="background:#1a1a1a; padding:20px; border-radius:15px; margin-bottom:15px;">';
+        html += '<div style="font-weight:bold; color:#2ecc71; font-size:18px;">' + q.title + '</div>';
+        html += '<div style="margin:10px 0; color:#ccc;">' + q.text + '</div>';
+        html += '<button onclick="toggleAns(' + i + ')" style="background:#3498db; color:white; padding:8px 16px; border:none; border-radius:6px; cursor:pointer; margin-right:10px;">' + (q.showAns ? 'Hide' : 'Show') + ' Answers (' + q.answers.length + ')</button>';
+        html += '<button onclick="addAns(' + i + ')" style="background:#2ecc71; color:black; padding:8px 16px; border:none; border-radius:6px; cursor:pointer;">Add Answer</button>';
+        
+        if(q.showAns) {
+            html += '<div style="margin-top:15px; padding:12px; background:#222; border-radius:10px;">';
+            for(let j = 0; j < q.answers.length; j++) {
+                html += '<div style="padding:8px; border-bottom:1px solid #333;">💡 ' + q.answers[j] + '</div>';
+            }
+            if(q.answers.length === 0) html += '<div style="padding:8px;">No answers yet</div>';
+            html += '</div>';
+        }
+        html += '</div>';
+    }
+    container.innerHTML = html;
+}
+
+
+    questionsList.unshift({
+        title: title,
+        text: text,
+        answers: [],
+        showAns: false
+    });
+    document.getElementById('qTitle').value = '';
+    document.getElementById('qText').value = '';
+    showQuestions();
+    alert('Question posted!');
+}
+
+
+
+
+}
+
+// Sample questions
+questionsList = [
+    {title: "🌽 Best maize variety?", text: "What maize variety gives the best yield?", answers: ["Try DK777", "Longe 5 is good"], showAns: false},
+    {title: "🐛 Pest control", text: "How to control armyworms?", answers: ["Use neem oil", "Plant marigolds"], showAns: false}
+];
+showQuestions();
+</script>
+
+<script>
+// Simple questions array
+let forumQuestions = [];
+
+function displayForum() {
+    const feed = document.getElementById('forumFeed');
+    if (!feed) return;
+    
+    if (forumQuestions.length === 0) {
+        feed.innerHTML = '<div style="background: #1a1a1a; padding: 40px; text-align: center; border-radius: 15px;">No questions yet. Be the first to ask!</div>';
+        return;
+    }
+    
+    let html = '';
+    for (let i = 0; i < forumQuestions.length; i++) {
+        const q = forumQuestions[i];
+        html += `
+            <div style="background: #1a1a1a; padding: 20px; border-radius: 15px; margin-bottom: 15px;">
+                <div style="font-weight: bold; color: #2ecc71; font-size: 18px;">${q.title}</div>
+                <div style="margin: 10px 0; color: #ccc;">${q.body}</div>
+                <div style="margin-top: 10px;">
+                    <button onclick="toggleAnswers(${i})" style="background: #3498db; color: white; padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; margin-right: 10px;">
+                        ${q.showAnswers ? 'Hide' : 'Show'} Answers (${q.answers.length})
+                    </button>
+                    <button onclick="addAnswerTo(${i})" style="background: #2ecc71; color: black; padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer;">Add Answer</button>
+                </div>
+                <div id="answers-${i}" style="display: ${q.showAnswers ? 'block' : 'none'}; margin-top: 15px; padding: 12px; background: #222; border-radius: 10px;">
+                    ${q.answers.map(a => `<div style="padding: 8px; border-bottom: 1px solid #333;">💡 ${a}</div>`).join('')}
+                    ${q.answers.length === 0 ? '<div style="padding: 8px; color: #888;">No answers yet. Be the first to answer!</div>' : ''}
+                </div>
+            </div>
+        `;
+    }
+    feed.innerHTML = html;
+}
+
+function toggleAnswers(index) { alert("Toggle clicked!");
+    forumQuestions[index].showAnswers = !forumQuestions[index].showAnswers;
+    displayForum();
+}
+
+function addAnswerTo(index) { alert("Add Answer clicked!");
+    const answer = prompt('Enter your answer:');
+    if (answer && answer.trim()) {
+        forumQuestions[index].answers.push(answer);
+        displayForum();
+    }
+}
+
+function postNewQuestion() { alert("Post button clicked!");
+    const title = document.getElementById('questionTitle').value;
+    const body = document.getElementById('questionBody').value;
+    
+    if (!title || !body) {
+        alert('Please enter both title and question');
+        return;
+    }
+    
+    forumQuestions.unshift({
+        title: title,
+        body: body,
+        answers: [],
+        showAnswers: false
+    });
+    
+    document.getElementById('questionTitle').value = '';
+    document.getElementById('questionBody').value = '';
+    displayForum();
+    alert('Question posted!');
+}
+
+// Add sample questions
+forumQuestions = [
+    {
+        title: "🌽 Best maize variety?",
+        body: "What maize variety gives the best yield in this region?",
+        answers: ["Try DK777 - drought resistant", "Longe 5 works well", "WH505 is good"],
+        showAnswers: false
+    },
+    {
+        title: "🐛 Organic pest control",
+        body: "How to control armyworms naturally?",
+        answers: ["Use neem oil spray", "Introduce ladybugs", "Plant marigolds"],
+        showAnswers: false
+    }
+];
+
+displayForum();
+</script>
+        </div>
+        
+        <div class="question-card" style="background: #1a1a1a; padding: 20px; border-radius: 15px; margin-bottom: 15px;">
+            <div style="font-weight: bold; color: #2ecc71; font-size: 18px;">🐛 Organic pest control</div>
+            <div style="margin: 10px 0; color: #ccc;">How to control armyworms naturally without chemicals?</div>
+            <div style="margin-top: 10px;">
+                <button onclick="toggleAnswers(this)" class="show-answers-btn" style="background: #3498db; color: white; padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; margin-right: 10px;">Show Answers (3)</button>
+                <button onclick="addAnswer(this)" class="add-answer-btn" style="background: #2ecc71; color: black; padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer;">Add Answer</button>
+            </div>
+            <div class="answers-box" style="display: none; margin-top: 15px; padding: 12px; background: #222; border-radius: 10px;">
+                <div style="padding: 8px; border-bottom: 1px solid #333;">✅ Use neem oil spray - 5ml per liter water</div>
+                <div style="padding: 8px; border-bottom: 1px solid #333;">✅ Introduce ladybugs - natural predators</div>
+                <div style="padding: 8px;">✅ Plant marigolds to repel pests</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Global questions array
+let questions = [
+    {
+        title: "🌽 Best maize variety?",
+        content: "What maize variety gives the best yield in this region?",
+        answers: ["Try DK777 - very drought resistant", "Longe 5 - good yields", "WH505 - works well in this area"],
+        showAnswers: false
+    },
+    {
+        title: "🐛 Organic pest control",
+        content: "How to control armyworms naturally without chemicals?",
+        answers: ["Use neem oil spray - 5ml per liter water", "Introduce ladybugs - natural predators", "Plant marigolds to repel pests"],
+        showAnswers: false
+    }
+];
+
+// Display all questions
+function displayQuestions() {
+    const feed = document.getElementById('feed');
+    if (!feed) return;
+    
+    feed.innerHTML = '';
+    for (let i = 0; i < questions.length; i++) {
+        const q = questions[i];
+        const questionDiv = document.createElement('div');
+        questionDiv.className = 'question-card';
+        questionDiv.style.cssText = 'background: #1a1a1a; padding: 20px; border-radius: 15px; margin-bottom: 15px;';
+        
+        questionDiv.innerHTML = `
+            <div style="font-weight: bold; color: #2ecc71; font-size: 18px;">${q.title}</div>
+            <div style="margin: 10px 0; color: #ccc;">${q.content}</div>
+            <div style="margin-top: 10px;">
+                <button onclick="toggleAnswer(${i})" style="background: #3498db; color: white; padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; margin-right: 10px;">${q.showAnswers ? 'Hide Answers' : 'Show Answers'} (${q.answers.length})</button>
+                <button onclick="addAnswerToQuestion(${i})" style="background: #2ecc71; color: black; padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer;">Add Answer</button>
+            </div>
+            <div class="answers-box" style="display: ${q.showAnswers ? 'block' : 'none'}; margin-top: 15px; padding: 12px; background: #222; border-radius: 10px;">
+                ${q.answers.map(a => `<div style="padding: 8px; border-bottom: 1px solid #333;">✅ ${a}</div>`).join('')}
+            </div>
+        `;
+        feed.appendChild(questionDiv);
+    }
+}
+
+// Toggle answers visibility
+function toggleAnswer(index) {
+    questions[index].showAnswers = !questions[index].showAnswers;
+    displayQuestions();
+}
+
+// Add answer to a question
+function addAnswerToQuestion(index) {
+    const answer = prompt('Enter your answer:');
+    if (answer && answer.trim()) {
+        questions[index].answers.push(answer);
+        displayQuestions();
+        alert('Answer added!');
+    }
+}
+
+// Post new question
+
+    
+    questions.unshift({
+        title: title,
+        content: content,
+        answers: [],
+        showAnswers: false
+    });
+    
+    document.getElementById('newTitle').value = '';
+    document.getElementById('newQuestion').value = '';
+    displayQuestions();
+    alert('Question posted!');
+}
+
+// Initial display
+displayQuestions();
+</script>
+
+<script>
+// Sample questions with large buttons
+var questions = [
+    {
+        title: "🌽 BEST MAIZE VARIETY?",
+        question: "What maize variety gives the best yield in this region? Looking for drought-resistant options.",
+        answers: ["🌽 DK777 - Very drought resistant", "🌽 Longe 5 - Good yields", "🌽 WH505 - Works well here"],
+        showAnswers: false
+    },
+    {
+        title: "🐛 ORGANIC PEST CONTROL",
+        question: "How to control armyworms naturally without chemicals? Need organic solutions.",
+        answers: ["🌿 Neem oil spray - 5ml per liter", "🐞 Introduce ladybugs", "🌸 Plant marigolds around crops"],
+        showAnswers: false
+    },
+    {
+        title: "💧 BEST IRRIGATION METHOD",
+        question: "Drip irrigation vs sprinkler - which is better for small-scale farmers with limited water?",
+        answers: ["💧 Drip irrigation - saves 50% water", "💧 Sprinkler - cheaper to install", "💧 Both - depends on crop"],
+        showAnswers: false
+    }
+];
+
+function displayQuestions() {
+    var container = document.getElementById('questionsContainer');
+    if(!container) return;
+    
+    var html = '';
+    for(var i = 0; i < questions.length; i++) {
+        var q = questions[i];
+        html += '<div style="background:#1a1a1a; padding:20px; border-radius:15px; margin-bottom:15px; border:1px solid #2a2a2a;">';
+        html += '<div style="font-weight:bold; color:#2ecc71; font-size:1.3rem; margin-bottom:10px;">' + q.title + '</div>';
+        html += '<div style="margin:10px 0; color:#ddd; font-size:1rem; line-height:1.4;">' + q.question + '</div>';
+        html += '<div style="margin-top:15px; display:flex; gap:10px; flex-wrap:wrap;">';
+        html += '<button onclick="toggleAnswers(' + i + ')" style="background:#3498db; color:white; padding:12px 20px; font-size:1rem; font-weight:bold; border:none; border-radius:10px; cursor:pointer;">';
+        html += q.showAnswers ? '🙈 HIDE ANSWERS (' + q.answers.length + ')' : '👁️ SHOW ANSWERS (' + q.answers.length + ')';
+        html += '</button>';
+        html += '<button onclick="addAnswer(' + i + ')" style="background:#2ecc71; color:black; padding:12px 20px; font-size:1rem; font-weight:bold; border:none; border-radius:10px; cursor:pointer;">✏️ ADD ANSWER</button>';
+        html += '</div>';
+        if(q.showAnswers) {
+            html += '<div style="margin-top:15px; padding:15px; background:#222; border-radius:10px;">';
+            for(var j = 0; j < q.answers.length; j++) {
+                html += '<div style="padding:12px; border-bottom:1px solid #333; font-size:0.95rem;">✅ ' + q.answers[j] + '</div>';
+            }
+            html += '</div>';
+        }
+        html += '</div>';
+    }
+    container.innerHTML = html;
+}
+
+function toggleAnswers(index) { alert("Toggle clicked!");
+    questions[index].showAnswers = !questions[index].showAnswers;
+    displayQuestions();
+}
+
+function addAnswer(index) {
+    var answer = prompt('Enter your answer:');
+    if(answer && answer.trim() !== '') {
+        questions[index].answers.push(answer);
+        displayQuestions();
+        alert('✅ Answer added successfully!');
+    }
+}
+
+function askQuestion() {
+    var title = document.getElementById('questionTitle').value;
+    var question = document.getElementById('questionText').value;
+    if(!title || !question) {
+        alert('⚠️ Please enter both title and question');
+        return;
+    }
+    questions.unshift({
+        title: "💬 " + title.toUpperCase(),
+        question: question,
+        answers: [],
+        showAnswers: false
+    });
+    document.getElementById('questionTitle').value = '';
+    document.getElementById('questionText').value = '';
+    displayQuestions();
+    alert('✅ Your question has been posted!');
+}
+
+displayQuestions();
+</script>
+
+<script>
+// Sample questions
+var questions = [
+    {
+        title: "🌽 Best maize variety?",
+        question: "What maize variety gives the best yield in this region?",
+        answers: ["Try DK777", "Longe 5 is good", "WH505 works well"],
+        showAnswers: false
+    },
+    {
+        title: "🐛 Organic pest control",
+        question: "How to control armyworms naturally?",
+        answers: ["Use neem oil", "Introduce ladybugs", "Plant marigolds"],
+        showAnswers: false
+    },
+    {
+        title: "💧 Best irrigation method",
+        question: "Drip vs sprinkler for small farms?",
+        answers: ["Drip is more efficient", "Sprinkler is cheaper", "Both work"],
+        showAnswers: false
+    }
+];
+
+function displayQuestions() {
+    var container = document.getElementById('questionsContainer');
+    if(!container) return;
+    
+    var html = '';
+    for(var i = 0; i < questions.length; i++) {
+        var q = questions[i];
+        html += '<div style="background:#1a1a1a; padding:15px; border-radius:12px; margin-bottom:12px;">';
+        html += '<div style="font-weight:bold; color:#2ecc71; font-size:16px;">' + q.title + '</div>';
+        html += '<div style="margin:8px 0; color:#ddd;">' + q.question + '</div>';
+        html += '<div style="margin-top:10px;">';
+        html += '<button onclick="toggleAnswers(' + i + ')" style="background:#3498db; color:white; padding:6px 15px; border:none; border-radius:5px; cursor:pointer; margin-right:10px;">';
+        html += q.showAnswers ? 'Hide Answers (' + q.answers.length + ')' : 'Show Answers (' + q.answers.length + ')';
+        html += '</button>';
+        html += '<button onclick="addAnswer(' + i + ')" style="background:#2ecc71; color:black; padding:6px 15px; border:none; border-radius:5px; cursor:pointer;">Add Answer</button>';
+        html += '</div>';
+        if(q.showAnswers) {
+            html += '<div style="margin-top:12px; padding:10px; background:#222; border-radius:8px;">';
+            for(var j = 0; j < q.answers.length; j++) {
+                html += '<div style="padding:8px; border-bottom:1px solid #333;">💡 ' + q.answers[j] + '</div>';
+            }
+            html += '</div>';
+        }
+        html += '</div>';
+    }
+    container.innerHTML = html;
+}
+
+function toggleAnswers(index) { alert("Toggle clicked!");
+    questions[index].showAnswers = !questions[index].showAnswers;
+    displayQuestions();
+}
+
+function addAnswer(index) {
+    var answer = prompt('Enter your answer:');
+    if(answer && answer.trim() !== '') {
+        questions[index].answers.push(answer);
+        displayQuestions();
+        alert('Answer added!');
+    }
+}
+
+function askQuestion() {
+    var title = document.getElementById('questionTitle').value;
+    var question = document.getElementById('questionText').value;
+    if(!title || !question) {
+        alert('Please enter both title and question');
+        return;
+    }
+    questions.unshift({
+        title: "💬 " + title,
+        question: question,
+        answers: [],
+        showAnswers: false
+    });
+    document.getElementById('questionTitle').value = '';
+    document.getElementById('questionText').value = '';
+    displayQuestions();
+    alert('Question posted!');
+}
+
+displayQuestions();
+</script>
+            </div>
+            
+            <div class="forum-question" style="background:#1a1a1a; padding:15px; border-radius:12px; margin-bottom:12px;">
+                <div style="font-weight:bold; color:#2ecc71; font-size:16px;">🐛 Organic pest control methods</div>
+                <div style="margin:8px 0; color:#ddd;">How to control armyworms naturally without chemicals? Need organic solutions.</div>
+                <div style="margin-top:10px;">
+                    <button class="showAnswersBtn" onclick="showAnswers(this)" style="background:#3498db; color:white; padding:6px 15px; border:none; border-radius:5px; cursor:pointer; margin-right:10px;">📖 Show Answers (3)</button>
+                    <button class="addAnswerBtn" onclick="addNewAnswer(this)" style="background:#2ecc71; color:black; padding:6px 15px; border:none; border-radius:5px; cursor:pointer;">✏️ Add Answer</button>
+                </div>
+                <div class="answersContainer" style="display:none; margin-top:12px; padding:10px; background:#222; border-radius:8px;">
+                    <div style="padding:8px; border-bottom:1px solid #333;"><strong>Organic Farmer:</strong> Use neem oil spray - mix 5ml neem oil with 1 liter water.</div>
+                    <div style="padding:8px; border-bottom:1px solid #333;"><strong>Expert:</strong> Introduce natural predators like ladybugs.</div>
+                    <div style="padding:8px;"><strong>Farmer John:</strong> Plant companion crops like marigolds.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+            </div>
+        </div>
+    </div>
+            </div>
+            
+            <div class="alert low" style="margin-bottom:12px; padding:15px;" id="post2">
+                <div class="alert-header">
+                    <span class="alert-pest">🐛 Organic pest control methods</span>
+                    <span class="alert-risk">Expert Farmer • 5 days ago</span>
+                </div>
+                <div class="alert-advice">How to control armyworms naturally without chemicals? Need organic solutions.</div>
+                <div style="margin-top:8px;">
+                    <span style="color:#2ecc71; cursor:pointer;" onclick="toggleAnswers('post2')">💬 3 answers</span>
+                    <span style="color:#3498db; cursor:pointer; margin-left:15px;" onclick="showAnswerForm('post2')">✏️ Add Answer</span>
+                </div>
+                <div id="answers-post2" style="display:none; margin-top:10px; padding:10px; background:#222; border-radius:8px;">
+                    <div style="padding:8px; border-bottom:1px solid #333;">
+                        <strong>Organic Farmer</strong> <span style="color:#888; font-size:11px;">4 days ago</span>
+                        <p style="margin-top:5px;">Use neem oil spray - mix 5ml neem oil with 1 liter water and few drops of soap.</p>
+                    </div>
+                    <div style="padding:8px; border-bottom:1px solid #333;">
+                        <strong>Expert</strong> <span style="color:#888; font-size:11px;">3 days ago</span>
+                        <p style="margin-top:5px;">Introduce natural predators like ladybugs and parasitic wasps.</p>
+                    </div>
+                    <div style="padding:8px;">
+                        <strong>Farmer John</strong> <span style="color:#888; font-size:11px;">2 days ago</span>
+                        <p style="margin-top:5px;">Plant companion crops like marigolds and garlic to repel pests naturally.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Answer Form Modal -->
+        <div id="answerModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 1000;">
+            <div style="background: #1a1a1a; margin: 30px auto; max-width: 500px; padding: 20px; border-radius: 15px;">
+                <h3 style="color: #2ecc71;">✏️ Add Your Answer</h3>
+                <textarea id="answerText" rows="4" placeholder="Write your answer here..." style="width:100%; padding:12px; background:#222; color:white; border:1px solid #2ecc71; border-radius:10px; margin:15px 0;"></textarea>
+                <button onclick="submitAnswer()" style="background:#2ecc71; color:black; padding:10px 20px; border:none; border-radius:8px; cursor:pointer; font-weight:bold;">Submit Answer</button>
+                <button onclick="closeAnswerModal()" style="background:#e74c3c; color:white; padding:10px 20px; border:none; border-radius:8px; cursor:pointer; margin-left:10px;">Cancel</button>
+            </div>
+        </div>
+    </div>
+            <div class="alert low" style="margin-bottom:12px; padding:15px;">
+                <div class="alert-header">
+                    <span class="alert-pest">🐛 Organic pest control methods</span>
+                    <span class="alert-risk">Expert Farmer • 5 days ago</span>
+                </div>
+                <div class="alert-advice">How to control armyworms naturally without chemicals? Need organic solutions.</div>
+                <div style="margin-top:8px;"><span style="color:#2ecc71; cursor:pointer;" onclick="toggleAnswers('post2')">💬 5 answers</span></div>
+            </div>
+            <div class="alert low" style="margin-bottom:12px; padding:15px;">
+                <div class="alert-header">
+                    <span class="alert-pest">💧 Best irrigation method for small farms</span>
+                    <span class="alert-risk">Mary • 1 week ago</span>
+                </div>
+                <div class="alert-advice">Drip irrigation vs sprinkler - which is better for small-scale farmers with limited water?</div>
+                <div style="margin-top:8px;"><span style="color:#2ecc71; cursor:pointer;" onclick="toggleAnswers('post3')">💬 2 answers</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div class="modal" id="login-modal"><div class="modal-content"><div class="modal-header"><h4>🔐 Farmer Login</h4><span class="modal-close" onclick="closeLoginModal()">&times;</span></div><div class="form-group"><label>Name or Phone Number</label><input type="text" id="modal-phone" placeholder="e.g., Kyera Farmer or 256700000000"></div><div class="form-group"><label>Password</label><input type="password" id="modal-password" placeholder="Your password"></div><button class="btn" onclick="loginModal()">Login</button><p style="margin-top:15px; text-align:center;">New farmer? <a href="#" onclick="closeLoginModal(); showPage('profile');">Register here</a></p></div></div>
+
+    <!-- Farmers List Modal -->
+    <div class="modal" id="farmers-modal"><div class="modal-content"><div class="modal-header"><h4>👥 Farmers List</h4><span class="modal-close" onclick="closeFarmersModal()">&times;</span></div><div id="farmers-list" style="max-height:300px; overflow-y:auto;"></div></div></div>
+
+    <div id="toast" class="toast"></div>
+
+    <div class="nav">
+        <div class="nav-item active" onclick="showPage('home')"><i>🏠</i><span>Home</span></div>
+        <div class="nav-item" onclick="showPage('alerts')"><i>🔔</i><span>Alerts</span><span class="badge" id="alert-badge" style="display:none;">0</span></div>
+        <div class="nav-item" onclick="showPage('forum')"><i>🌾</i><span>Forum</span></div>
+        <div class="nav-item" onclick="showPage('profile')"><i>👤</i><span>Profile</span></div>
+    </div>
+
+    <script>
+        let currentCrop = 'maize';
+        let currentLang = 'en';
+        let currentFarmer = null;
+
+        function showToast(msg) { let t = document.getElementById('toast'); t.textContent = msg; t.style.display = 'block'; setTimeout(() => t.style.display = 'none', 2000); }
+        function clearLoginForms() { document.getElementById('login-phone').value = ''; document.getElementById('login-password').value = ''; document.getElementById('modal-phone').value = ''; document.getElementById('modal-password').value = ''; }
+
+        function checkAuth() {
+            fetch('/api/auth/check').then(r => r.json()).then(data => {
+                if (data.authenticated) {
+                    document.getElementById('login-btn').textContent = 'Logout';
+                    document.getElementById('login-btn').onclick = () => logout();
+                    document.getElementById('login-form').style.display = 'none';
+                    document.getElementById('profile-view').style.display = 'block';
+                    document.getElementById('admin-link').style.display = data.farmer.is_admin === 1 ? 'flex' : 'none';
+                    loadProfileData();
+                } else {
+                    document.getElementById('login-btn').textContent = 'Login';
+                    document.getElementById('login-btn').onclick = () => showLoginModal();
+                    document.getElementById('login-form').style.display = 'block';
+                    document.getElementById('profile-view').style.display = 'none';
+                    document.getElementById('admin-link').style.display = 'none';
+                    clearProfileDisplay();
+                }
+            });
+        }
+
+        function loadProfileData() {
+            let phone = localStorage.getItem('farmer_phone');
+            if (phone) fetch('/api/farmer/' + phone).then(r => r.json()).then(f => { if (!f.error) { currentFarmer = f; document.getElementById('profile-name-display').textContent = f.name; document.getElementById('profile-phone-display').textContent = f.phone; document.getElementById('profile-crop-display').textContent = f.main_crop; document.getElementById('profile-village-display').textContent = f.village; document.getElementById('reg-name').value = f.name; document.getElementById('reg-phone').value = f.phone; document.getElementById('reg-village').value = f.village; document.getElementById('reg-crop').value = f.main_crop; document.getElementById('reg-size').value = f.farm_size || ''; document.getElementById('reg-other').value = f.other_crops || ''; } });
+        }
+
+        function clearProfileDisplay() { document.getElementById('profile-name-display').textContent = ''; document.getElementById('profile-phone-display').textContent = ''; document.getElementById('profile-crop-display').textContent = ''; document.getElementById('profile-village-display').textContent = ''; }
+
+        function login() {
+            let identifier = document.getElementById('login-phone').value;
+            let password = document.getElementById('login-password').value;
+            if (!identifier) { alert('Enter name or phone'); return; }
+            fetch('/api/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ phone: identifier, password: password }) })
+                .then(r => r.json()).then(data => {
+                    if (data.success) { localStorage.setItem('farmer_phone', data.farmer.phone); alert(`Welcome ${data.farmer.name}!`); clearLoginForms(); checkAuth(); showToast(`Welcome back ${data.farmer.name}!`); showPage('home'); }
+                    else alert('Invalid credentials');
+                });
+        }
+
+        function loginModal() {
+            let identifier = document.getElementById('modal-phone').value;
+            let password = document.getElementById('modal-password').value;
+            if (!identifier) { alert('Enter name or phone'); return; }
+            fetch('/api/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ phone: identifier, password: password }) })
+                .then(r => r.json()).then(data => {
+                    if (data.success) { localStorage.setItem('farmer_phone', data.farmer.phone); alert(`Welcome ${data.farmer.name}!`); clearLoginForms(); closeLoginModal(); checkAuth(); showToast(`Welcome back ${data.farmer.name}!`); showPage('home'); }
+                    else alert('Invalid credentials');
+                });
+        }
+
+        function logout() { fetch('/api/auth/logout', { method: 'POST' }).then(() => { localStorage.clear(); sessionStorage.clear(); clearLoginForms(); clearProfileDisplay(); document.getElementById('login-form').style.display = 'block'; document.getElementById('profile-view').style.display = 'none'; document.getElementById('admin-link').style.display = 'none'; showToast('Logged out'); showPage('home'); location.reload(); }); }
+
+        function showLoginModal() { clearLoginForms(); document.getElementById('login-modal').classList.add('active'); }
+        function closeLoginModal() { document.getElementById('login-modal').classList.remove('active'); clearLoginForms(); }
+        function closeFarmersModal() { document.getElementById('farmers-modal').classList.remove('active'); }
+
+        function registerFarmer() {
+            let data = { name: document.getElementById('reg-name').value, phone: document.getElementById('reg-phone').value, village: document.getElementById('reg-village').value, main_crop: document.getElementById('reg-crop').value, farm_size: document.getElementById('reg-size').value, other_crops: document.getElementById('reg-other').value };
+            if (!data.name || !data.phone) { alert('Fill required fields'); return; }
+            fetch('/api/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) }).then(r => r.json()).then(result => { alert(result.message); localStorage.setItem('farmer_phone', data.phone); checkAuth(); loadStats(); showPage('home'); });
+        }
+
+        function loadWeather() {
+            fetch('/api/weather').then(r => r.json()).then(data => {
+                if (data.success) { document.getElementById('temperature').textContent = Math.round(data.data.temp) + '°C'; document.getElementById('weather-desc').textContent = data.data.conditions; document.getElementById('humidity').innerHTML = 'Humidity: ' + data.data.humidity + '%'; document.getElementById('weather-icon').textContent = data.data.conditions.includes('rain') ? '🌧️' : (data.data.conditions.includes('cloud') ? '☁️' : '☀️'); }
+            });
+        }
+
+        function loadWeatherHistory() {
+            fetch('/api/weather/history?days=7').then(r => r.json()).then(data => {
+                if (data.success && data.data.length) {
+                    let days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], today = new Date().getDay(), forecastHtml = '', chartHtml = '';
+                    data.data.slice(0, 5).forEach((d, i) => { let idx = (today + i + 1) % 7; let t = Math.round(d.temperature); forecastHtml += `<div class="forecast-item"><div>${days[idx]}</div><span class="forecast-temp">${t}°</span></div>`; });
+                    data.data.slice(0, 7).forEach((d, i) => { let t = Math.round(d.temperature); let h = 40 + (t / 35) * 100; let idx = (today + i) % 7; chartHtml += `<div class="chart-bar-wrapper"><div class="chart-bar" style="height:${Math.min(120, h)}px"><span class="chart-value">${t}°</span></div><div class="chart-label">${days[idx]}</div></div>`; });
+                    document.getElementById('forecast').innerHTML = forecastHtml; document.getElementById('weather-chart').innerHTML = chartHtml;
+                    let avg = Math.round(data.data.slice(0, 7).reduce((a,b)=>a+b.temperature,0)/7); document.getElementById('weather-trend').textContent = `📈 Avg: ${avg}°C`;
+                }
+            });
+        }
+
+        function loadAlerts(crop) {
+            fetch('/api/alerts/' + crop).then(r => r.json()).then(alerts => {
+                let html = '';
+                if (alerts.length === 0) html = '<div class="alert" style="background:#28a745;">✅ No active alerts</div>';
+                else alerts.forEach((a, i) => { let cls = (a.risk || 'low').toLowerCase(); html += `<div class="alert ${cls}" onclick="toggleAlertDetails(${i})"><div class="alert-header"><span class="alert-pest">${a.pest}</span><span class="alert-risk">${a.risk} ${a.risk === "HIGH" ? "75%" : (a.risk === "MEDIUM" ? "50%" : "25%")}</span></div><div class="alert-advice">${a.advice}</div><div class="alert-details" id="alert-details-${i}"><div class="prevention-tip"><strong>🛡️ Prevention:</strong> ${a.prevention}</div><div class="treatment-tip"><strong>💊 Treatment:</strong> ${a.treatment}</div></div></div>`; });
+                document.getElementById('alerts-container').innerHTML = html;
+                document.getElementById('alert-badge').textContent = alerts.length; document.getElementById('alert-badge').style.display = alerts.length ? 'inline-block' : 'none';
+            });
+        }
+
+        function toggleAlertDetails(idx) { document.querySelectorAll('.alert')[idx]?.classList.toggle('expanded'); }
+        function selectCrop(crop) { currentCrop = crop; document.querySelectorAll('.crop-btn').forEach(b => b.classList.remove('active')); event.target.classList.add('active'); loadAlerts(crop); }
+        function loadHistory(crop) { fetch('/api/history/' + crop).then(r => r.json()).then(alerts => { let html = ''; if (alerts.length === 0) html = '<div style="padding:20px; text-align:center;">No alerts</div>'; else alerts.forEach(a => { let cls = (a.risk || 'low').toLowerCase(); html += `<div style="padding:15px; border-bottom:1px solid #eee;"><div><strong>${a.pest}</strong> <span style="background:${cls==='high'?'#dc3545':cls==='medium'?'#fd7e14':'#ffc107'}; color:white; padding:2px 8px; border-radius:12px; font-size:11px;">${a.risk}</span></div><div style="font-size:11px; color:#999;">${new Date(a.date).toLocaleString()}</div></div>`; }); document.getElementById('history-container').innerHTML = html; }); }
+        function loadStats() { fetch('/api/stats').then(r => r.json()).then(data => { if (data.success) { document.getElementById('farmer-count').textContent = data.data.farmers; document.getElementById('alert-count').textContent = data.data.total_alerts; document.getElementById('today-count').textContent = data.data.alerts_today; } }); }
+        function viewFarmers() { fetch('/api/farmers/list').then(r => r.json()).then(farmers => { let html = farmers.map(f => `<div style="padding:10px; border-bottom:1px solid #eee;"><strong>${f.name}</strong> - ${f.phone}<br><small>${f.main_crop}</small></div>`).join(''); document.getElementById('farmers-list').innerHTML = html || '<div>No farmers</div>'; document.getElementById('farmers-modal').classList.add('active'); }); }
+        function viewAllAlerts() { showPage('alerts'); }
+        function viewTodayAlerts() { showToast(`Today's Alerts: ${document.getElementById('today-count').textContent}`); }
+        function refreshWeather() { loadWeather(); showToast('Weather updated'); }
+        function refreshWeatherHistory() { loadWeatherHistory(); showToast('Chart refreshed'); }
+        function refreshAlerts() { loadHistory('all'); showToast('Alerts refreshed'); }
+
+        function showPage(page) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active-page'));
+            document.getElementById(page + '-page').classList.add('active-page');
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            if (page === 'home') { document.getElementById('nav-home').classList.add('active'); loadWeather(); loadAlerts(currentCrop); loadWeatherHistory(); loadStats(); }
+            else if (page === 'alerts') { document.getElementById('nav-alerts').classList.add('active'); loadHistory('all'); }
+            else if (page === 'forum') document.getElementById('nav-forum').classList.add('active');
+            else if (page === 'profile') document.getElementById('nav-profile').classList.add('active');
+        }
+
+        function toggleLanguage() { currentLang = currentLang === 'en' ? 'rn' : 'en'; document.getElementById('langToggle').textContent = currentLang === 'en' ? '🇺🇬 Runyankole' : '🇬🇧 English'; }
+
+        checkAuth(); loadWeather(); loadAlerts('maize'); loadWeatherHistory(); loadStats();
+        setInterval(() => { if (document.getElementById('home-page').classList.contains('active-page')) { loadWeather(); loadAlerts(currentCrop); loadStats(); } }, 60000);
+    </script>
+
+<script>
+// 50 Farming Tips
+const farmingTipsList = [
+    "💧 Water crops early morning or late evening to reduce evaporation",
+    "🧪 Test soil pH regularly. Most crops thrive in pH 6.0-7.0",
+    "🔄 Rotate crops each season to prevent soil nutrient depletion",
+    "🐞 Introduce beneficial insects like ladybugs to control aphids",
+    "🍂 Apply organic mulch to retain moisture and suppress weeds",
+    "🌱 Plant cover crops to improve soil fertility",
+    "💦 Use drip irrigation for efficient water use",
+    "♻️ Compost crop residues to recycle nutrients",
+    "👀 Monitor fields weekly for early pest detection",
+    "🧴 Apply fertilizers based on soil test results",
+    "✂️ Prune diseased plant parts immediately",
+    "🛡️ Use disease-resistant crop varieties",
+    "📏 Maintain proper plant spacing for good air circulation",
+    "🌽 Harvest crops at the right maturity stage",
+    "📦 Store produce in cool, dry conditions",
+    "🧹 Clean farm equipment between fields",
+    "🦋 Use integrated pest management (IPM) strategies",
+    "🌿 Apply neem oil as a natural pesticide",
+    "🪤 Install pheromone traps for monitoring pests",
+    "🧼 Practice proper sanitation to remove pest habitats",
+    "📐 Use raised beds for better drainage",
+    "🧪 Apply lime to acidic soils to raise pH",
+    "⚪ Use sulfur to lower pH in alkaline soils",
+    "🌾 Incorporate organic matter to improve soil structure",
+    "🚫 Avoid working in wet soil to prevent compaction",
+    "🌳 Use windbreaks to protect crops from strong winds",
+    "🕶️ Install shade nets for sensitive crops",
+    "🌽 Practice intercropping to maximize land use",
+    "🥒 Use trellises for climbing crops",
+    "🌱 Save seeds from best-performing plants",
+    "📝 Keep detailed records of planting dates",
+    "🤝 Join a farmer cooperative to share knowledge",
+    "📚 Attend agricultural extension training",
+    "🌤️ Use weather forecasts to plan planting",
+    "📏 Install rain gauges to track precipitation",
+    "💧 Build water harvesting structures for dry seasons",
+    "☀️ Use solar-powered pumps for irrigation",
+    "🌎 Practice conservation tillage to reduce erosion",
+    "🌲 Plant trees on field boundaries as windbreaks",
+    "🐝 Use biological control agents like Trichogramma wasps",
+    "🦟 Apply Bacillus thuringiensis (Bt) for caterpillars",
+    "🟡 Use yellow sticky traps for whitefly monitoring",
+    "💪 Apply potassium silicate to strengthen plant cell walls",
+    "🪞 Use reflective mulches to repel aphids",
+    "🌿 Practice trap cropping to lure pests away",
+    "🕷️ Release predatory mites for spider mite control",
+    "🍄 Apply copper-based fungicides for fungal diseases",
+    "⚪ Use sulfur dust for powdery mildew control",
+    "🧹 Practice field sanitation to remove infected plants",
+    "📖 Keep learning and adapting to new farming techniques"
+];
+
+let currentTip = Math.floor(Math.random() * farmingTipsList.length);
+document.getElementById('dailyFarmingTip').innerHTML = farmingTipsList[currentTip];
+
+function showAllFarmingTips() {
+    const modal = document.getElementById('farmingTipsModal');
+    const listDiv = document.getElementById('farmingTipsList');
+    listDiv.innerHTML = farmingTipsList.map((tip, i) => 
+        `<div style="padding: 10px; border-bottom: 1px solid #333; cursor: pointer; color: #ddd;" onclick="selectFarmingTip(${i})">${tip}</div>`
+    ).join('');
+    modal.style.display = 'block';
+}
+
+function selectFarmingTip(index) {
+    currentTip = index;
+    document.getElementById('dailyFarmingTip').innerHTML = farmingTipsList[currentTip];
+    closeFarmingTipsModal();
+}
+
+function closeFarmingTipsModal() {
+    document.getElementById('farmingTipsModal').style.display = 'none';
+}
+
+// Load averages
+function loadWeatherAverages() {
+    fetch('/api/weather/history?days=7')
+        .then(r => r.json())
+        .then(data => {
+            if (data.success && data.data && data.data.length) {
+                let temps = data.data.map(d => d.temperature);
+                let hums = data.data.map(d => d.humidity);
+                let avgTemp = (temps.reduce((a,b) => a + b, 0) / temps.length).toFixed(0);
+                let avgHum = (hums.reduce((a,b) => a + b, 0) / hums.length).toFixed(0);
+                
+                let tEl = document.getElementById('avgTempDisplay');
+                let hEl = document.getElementById('avgHumidDisplay');
+                if (tEl) tEl.innerHTML = avgTemp + '°C';
+                if (hEl) hEl.innerHTML = avgHum + '%';
+            }
+        })
+        .catch(e => console.log(e));
+}
+
+setTimeout(loadWeatherAverages, 1500);
+</script>
+
+
+<script>
+function loadAverages() {
+    fetch('/api/weather/history?days=7')
+        .then(r => r.json())
+        .then(data => {
+            if (data.success && data.data && data.data.length) {
+                let temps = data.data.map(d => d.temperature);
+                let hums = data.data.map(d => d.humidity);
+                let avgTemp = (temps.reduce((a,b) => a + b, 0) / temps.length).toFixed(0);
+                let avgHum = (hums.reduce((a,b) => a + b, 0) / hums.length).toFixed(0);
+                let tEl = document.getElementById('avgTempDisplay');
+                let hEl = document.getElementById('avgHumidDisplay');
+                if (tEl) tEl.innerHTML = avgTemp + '°C';
+                if (hEl) hEl.innerHTML = avgHum + '%';
+            }
+        })
+        .catch(e => console.log(e));
+}
+setTimeout(loadAverages, 1500);
+</script>
+
+
+<script>
+
+    const forumPosts = document.getElementById('forumPosts');
+    const newPost = document.createElement('div');
+    newPost.className = 'alert low';
+    newPost.style.marginBottom = '12px';
+    newPost.style.padding = '15px';
+    newPost.innerHTML = `
+        <div class="alert-header">
+            <span class="alert-pest">💬 New Question</span>
+            <span class="alert-risk">Just now</span>
+        </div>
+        <div class="alert-advice">${question.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>
+        <div style="margin-top:8px;"><span style="color:#2ecc71; cursor:pointer;" onclick="showAnswers(this)">💬 0 answers</span></div>
+    `;
+    forumPosts.insertBefore(newPost, forumPosts.firstChild);
+    document.getElementById('forumQuestion').value = '';
+    alert('Your question has been posted!');
+}
+
+function showAnswers(postId) {
+    // This function is replaced by toggleAnswers
+    toggleAnswers(postId);
+}
+</script>
+
+
+<script>
+let currentPostId = null;
+
+function toggleAnswers(postId) {
+    const answersDiv = document.getElementById('answers-' + postId);
+    const showBtn = event.target;
+    if (answersDiv.style.display === 'none') {
+        answersDiv.style.display = 'block';
+        const answerCount = answersDiv.children.length;
+        showBtn.innerHTML = `💬 Hide ${answerCount} answers`;
+    } else {
+        answersDiv.style.display = 'none';
+        const answerCount = answersDiv.children.length;
+        showBtn.innerHTML = `💬 Show ${answerCount} answers`;
+    }
+}
+
+function showAnswerForm(postId) {
+    currentPostId = postId;
+    document.getElementById('answerModal').style.display = 'block';
+}
+
+function closeAnswerModal() {
+    document.getElementById('answerModal').style.display = 'none';
+    document.getElementById('answerText').value = '';
+}
+
+function submitAnswer() {
+    const answer = document.getElementById('answerText').value;
+    if (!answer.trim()) {
+        alert('Please enter your answer');
+        return;
+    }
+    
+    const answersDiv = document.getElementById('answers-' + currentPostId);
+    const newAnswer = document.createElement('div');
+    newAnswer.style.padding = '8px';
+    newAnswer.style.borderBottom = '1px solid #333';
+    newAnswer.innerHTML = `
+        <strong>You</strong> <span style="color:#888; font-size:11px;">Just now</span>
+        <p style="margin-top:5px;">${answer.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</p>
+    `;
+    answersDiv.insertBefore(newAnswer, answersDiv.firstChild);
+    
+    // Update answer count
+    const answerCount = answersDiv.children.length;
+    const showBtn = document.getElementById(currentPostId).querySelector('span[onclick*="toggleAnswers"]');
+    if (answersDiv.style.display === 'block') {
+        showBtn.innerHTML = `💬 Hide ${answerCount} answers`;
+    } else {
+        showBtn.innerHTML = `💬 Show ${answerCount} answers`;
+    }
+    
+    closeAnswerModal();
+    alert('Your answer has been posted!');
+}
+
+
+    
+    const forumPosts = document.getElementById('forumPosts');
+    const postId = 'post' + Date.now();
+    const newPost = document.createElement('div');
+    newPost.className = 'alert low';
+    newPost.style.marginBottom = '12px';
+    newPost.style.padding = '15px';
+    newPost.id = postId;
+    newPost.innerHTML = `
+        <div class="alert-header">
+            <span class="alert-pest">💬 New Question</span>
+            <span class="alert-risk">Just now</span>
+        </div>
+        <div class="alert-advice">${question.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>
+        <div style="margin-top:8px;">
+            <span style="color:#2ecc71; cursor:pointer;" onclick="toggleAnswers('${postId}')">💬 Show 0 answers</span>
+            <span style="color:#3498db; cursor:pointer; margin-left:15px;" onclick="showAnswerForm('${postId}')">✏️ Add Answer</span>
+        </div>
+        <div id="answers-${postId}" style="display:none; margin-top:10px; padding:10px; background:#222; border-radius:8px;"></div>
+    `;
+    forumPosts.insertBefore(newPost, forumPosts.firstChild);
+    document.getElementById('forumQuestion').value = '';
+    alert('Your question has been posted! Farmers can now answer it.');
+}
+</script>
+
+
+<script>
+
+    var list = document.getElementById('questionsList');
+    var newDiv = document.createElement('div');
+    newDiv.style.cssText = 'background:#1a1a1a; padding:15px; border-radius:12px; margin-bottom:12px;';
+    newDiv.innerHTML = '<div style="font-weight:bold; color:#2ecc71;">💬 New Question</div>' +
+                       '<div style="margin:8px 0;">' + question.replace(/</g, '&lt;') + '</div>' +
+                       '<button onclick="toggleAnswers(this)" style="background:#3498db; color:white; padding:5px 12px; border:none; border-radius:5px; cursor:pointer; margin-right:10px;">Show Answers</button>' +
+                       '<button onclick="addAnswer(this)" style="background:#2ecc71; color:black; padding:5px 12px; border:none; border-radius:5px; cursor:pointer;">Add Answer</button>' +
+                       '<div class="answersList" style="display:none; margin-top:10px; padding:10px; background:#222; border-radius:8px;"></div>';
+    list.insertBefore(newDiv, list.firstChild);
+    document.getElementById('forumQuestion').value = '';
+    alert('Question posted!');
+}
+
+function toggleAnswers(btn) {
+    var answersDiv = btn.parentElement.querySelector('.answersList');
+    if(answersDiv.style.display === 'none') {
+        answersDiv.style.display = 'block';
+        btn.innerHTML = 'Hide Answers';
+    } else {
+        answersDiv.style.display = 'none';
+        btn.innerHTML = 'Show Answers';
+    }
+}
+
+function addAnswer(btn) {
+    var answer = prompt('Enter your answer:');
+    if(answer && answer.trim() !== '') {
+        var answersDiv = btn.parentElement.querySelector('.answersList');
+        var newAnswer = document.createElement('div');
+        newAnswer.style.padding = '5px';
+        newAnswer.style.borderBottom = '1px solid #333';
+        newAnswer.innerHTML = '💡 ' + answer.replace(/</g, '&lt;');
+        answersDiv.appendChild(newAnswer);
+        alert('Answer added!');
+    }
+}
+</script>
+
+
+<script>
+function postNewQuestion() { alert("Post button clicked!");
+    var question = document.getElementById('forumQuestion').value;
+    if(question.trim() === '') {
+        alert('Please enter your question');
+        return;
+    }
+    var list = document.getElementById('forumQuestionsList');
+    var newDiv = document.createElement('div');
+    newDiv.className = 'forum-question';
+    newDiv.style.cssText = 'background:#1a1a1a; padding:15px; border-radius:12px; margin-bottom:12px;';
+    newDiv.innerHTML = '<div style="font-weight:bold; color:#2ecc71; font-size:16px;">💬 New Question</div>' +
+                       '<div style="margin:8px 0; color:#ddd;">' + question.replace(/</g, '&lt;') + '</div>' +
+                       '<div style="margin-top:10px;">' +
+                       '<button class="showAnswersBtn" onclick="showAnswers(this)" style="background:#3498db; color:white; padding:6px 15px; border:none; border-radius:5px; cursor:pointer; margin-right:10px;">📖 Show Answers (0)</button>' +
+                       '<button class="addAnswerBtn" onclick="addNewAnswer(this)" style="background:#2ecc71; color:black; padding:6px 15px; border:none; border-radius:5px; cursor:pointer;">✏️ Add Answer</button>' +
+                       '</div>' +
+                       '<div class="answersContainer" style="display:none; margin-top:12px; padding:10px; background:#222; border-radius:8px;"></div>';
+    list.insertBefore(newDiv, list.firstChild);
+    document.getElementById('forumQuestion').value = '';
+    alert('Your question has been posted!');
+}
+
+function showAnswers(btn) {
+    var questionDiv = btn.parentElement.parentElement;
+    var answersDiv = questionDiv.querySelector('.answersContainer');
+    if(answersDiv.style.display === 'none') {
+        answersDiv.style.display = 'block';
+        btn.innerHTML = btn.innerHTML.replace('Show', 'Hide');
+    } else {
+        answersDiv.style.display = 'none';
+        btn.innerHTML = btn.innerHTML.replace('Hide', 'Show');
+    }
+}
+
+function addNewAnswer(btn) {
+    var answer = prompt('Enter your answer:');
+    if(answer && answer.trim() !== '') {
+        var questionDiv = btn.parentElement.parentElement;
+        var answersDiv = questionDiv.querySelector('.answersContainer');
+        var showBtn = questionDiv.querySelector('.showAnswersBtn');
+        var newAnswer = document.createElement('div');
+        newAnswer.style.padding = '8px';
+        newAnswer.style.borderBottom = '1px solid #333';
+        newAnswer.innerHTML = '<strong>You:</strong> ' + answer.replace(/</g, '&lt;');
+        answersDiv.appendChild(newAnswer);
+        
+        // Update answer count
+        var answerCount = answersDiv.children.length;
+        showBtn.innerHTML = '📖 Show Answers (' + answerCount + ')';
+        alert('Your answer has been added!');
+    }
+}
+</script>
+
+
+
+
+<script>
+
+
+
+    
+    let html = '';
+    for(let i = 0; i < forumData.length; i++) {
+        let q = forumData[i];
+        html += '<div style="background:#1a1a1a; padding:20px; border-radius:15px; margin-bottom:15px;">';
+        html += '<div style="font-weight:bold; color:#2ecc71; font-size:18px;">' + q.title + '</div>';
+        html += '<div style="margin:10px 0; color:#ccc;">' + q.text + '</div>';
+        html += '<button onclick="toggleForumAnswers(' + i + ')" style="background:#3498db; color:white; padding:8px 16px; border:none; border-radius:6px; cursor:pointer; margin-right:10px;">' + (q.show ? 'Hide' : 'Show') + ' Answers (' + q.answers.length + ')</button>';
+        html += '<button onclick="addForumAnswer(' + i + ')" style="background:#2ecc71; color:black; padding:8px 16px; border:none; border-radius:6px; cursor:pointer;">Add Answer</button>';
+        
+        if(q.show) {
+            html += '<div style="margin-top:15px; padding:12px; background:#222; border-radius:10px;">';
+            for(let j = 0; j < q.answers.length; j++) {
+                html += '<div style="padding:8px; border-bottom:1px solid #333;">💡 ' + q.answers[j] + '</div>';
+            }
+            if(q.answers.length === 0) html += '<div style="padding:8px;">No answers yet</div>';
+            html += '</div>';
+        }
+        html += '</div>';
+    }
+    container.innerHTML = html;
+}
+
+
+    forumData.unshift({
+        title: title,
+        text: text,
+        answers: [],
+        show: false
+    });
+    document.getElementById('forumTitle').value = '';
+    document.getElementById('forumContent').value = '';
+    displayForumQuestions();
+    alert('Question posted!');
+}
+
+
+
+
+}
+
+// Sample questions
+forumData = [
+    {title: "🌽 Best maize variety?", text: "What maize variety gives the best yield?", answers: ["Try DK777", "Longe 5 is good"], show: false},
+    {title: "🐛 Organic pest control", text: "How to control armyworms naturally?", answers: ["Use neem oil", "Plant marigolds"], show: false}
+];
+displayForumQuestions();
+</script>
+</body>
+</html>
