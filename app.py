@@ -440,7 +440,7 @@ def admin_dashboard():
             flash('Access denied. Admin privileges required.', 'error')
             return redirect(url_for('index'))
     
-    return render_template('admin.html')
+    return render_template("admin.html")
 
 @app.route('/api/admin/stats')
 def api_admin_stats():
@@ -783,6 +783,52 @@ logger.info("✅ Alert scheduler started (runs every 6 hours)")
 
 # ==================== Main Entry Point ====================
 
+
+@app.route('/api/pest-rules', methods=['GET'])
+def get_pest_rules():
+    return jsonify({'rules': [
+        {'id': 1, 'pest_name': 'Armyworm', 'crop_type': 'maize', 'recommended_action': 'Spray pesticide', 'threshold': 30},
+        {'id': 2, 'pest_name': 'Aphids', 'crop_type': 'beans', 'recommended_action': 'Neem oil', 'threshold': 50}
+    ]})
+
+@app.route('/api/farming-tips', methods=['GET'])
+def get_farming_tips():
+    return jsonify({'tips': [
+        {'id': 1, 'title': 'Water Conservation', 'content': 'Water early morning', 'date': '2024-01-01'},
+        {'id': 2, 'title': 'Soil Health', 'content': 'Test pH regularly', 'date': '2024-01-01'}
+    ]})
+
+@app.route('/api/experts', methods=['GET'])
+def get_experts():
+    with get_db() as db:
+        experts = db.execute('SELECT id, name, phone, main_crop FROM farmers WHERE is_expert = 1 LIMIT 10').fetchall()
+        return jsonify({'experts': [dict(e) for e in experts]})
+
+@app.route('/api/alerts/list', methods=['GET'])
+def get_alerts_list():
+    with get_db() as db:
+        alerts = db.execute('SELECT id, message, "info" as type, date FROM alerts ORDER BY date DESC LIMIT 20').fetchall()
+        return jsonify([dict(a) for a in alerts])
+
+def get_pest_rules():
+    with get_db() as db:
+        rules = db.execute('SELECT id, pest_name, crop_type, recommended_action, threshold FROM pest_rules').fetchall()
+        return jsonify({'rules': [dict(r) for r in rules]})
+
+def get_farming_tips():
+    with get_db() as db:
+        tips = db.execute('SELECT id, title, content, date FROM farming_tips ORDER BY date DESC').fetchall()
+        return jsonify({'tips': [dict(t) for t in tips]})
+
+def get_experts():
+    with get_db() as db:
+        experts = db.execute('SELECT id, name, phone, main_crop, village FROM farmers WHERE is_expert = 1').fetchall()
+        return jsonify({'experts': [dict(e) for e in experts]})
+
+def get_alerts_list():
+    with get_db() as db:
+        alerts = db.execute('SELECT id, message, "info" as type, date FROM alerts ORDER BY date DESC LIMIT 20').fetchall()
+        return jsonify([dict(a) for a in alerts])
 if __name__ == '__main__':
     init_db()
     print("\n" + "="*60)
@@ -799,3 +845,170 @@ if __name__ == '__main__':
     print("   Simulators Index: http://127.0.0.1:5000/simulators")
     print("="*60 + "\n")
     app.run(host='0.0.0.0', port=5000, debug=True)
+
+@app.route('/login')
+def login_page():
+    return render_template('login.html')
+
+    with get_db() as db:
+        rules = db.execute('SELECT id, pest_name, crop_type, recommended_action, threshold FROM pest_rules LIMIT 50').fetchall()
+        return jsonify({'rules': [dict(r) for r in rules]})
+
+def get_farming_tips_admin():
+    with get_db() as db:
+        tips = db.execute('SELECT id, title, content, date FROM farming_tips ORDER BY date DESC LIMIT 50').fetchall()
+        return jsonify({'tips': [dict(t) for t in tips]})
+
+@app.route('/api/broadcast/send', methods=['POST'])
+def send_broadcast():
+    data = request.json
+    message = data.get('message')
+    if not message:
+        return jsonify({'success': False, 'message': 'Message required'}), 400
+    
+    with get_db() as db:
+        farmers = db.execute('SELECT COUNT(*) as count FROM farmers WHERE is_admin = 0').fetchone()
+        db.execute('INSERT INTO alerts (message, type) VALUES (?, ?)', (f'📢 BROADCAST: {message}', 'broadcast'))
+        db.commit()
+        return jsonify({'success': True, 'message': f'Broadcast sent to {farmers["count"]} farmers'})
+
+def get_experts_list():
+    with get_db() as db:
+        experts = db.execute('SELECT id, name, phone, main_crop, village FROM farmers WHERE is_expert = 1 LIMIT 50').fetchall()
+        return jsonify({'experts': [dict(e) for e in experts]})
+
+    with get_db() as db:
+        rules = db.execute('SELECT id, pest_name, crop_type, recommended_action, threshold FROM pest_rules').fetchall()
+        return jsonify({'rules': [dict(r) for r in rules]})
+
+def get_farming_tips_admin():
+    with get_db() as db:
+        tips = db.execute('SELECT id, title, content, date FROM farming_tips ORDER BY date DESC').fetchall()
+        return jsonify({'tips': [dict(t) for t in tips]})
+
+def get_experts_admin():
+    with get_db() as db:
+        experts = db.execute('SELECT id, name, phone, main_crop, village FROM farmers WHERE is_expert = 1').fetchall()
+        return jsonify({'experts': [dict(e) for e in experts]})
+
+def get_alerts_list_admin():
+    with get_db() as db:
+        alerts = db.execute('SELECT id, message, "info" as type, date FROM alerts ORDER BY date DESC LIMIT 20').fetchall()
+        return jsonify([dict(a) for a in alerts])
+
+def get_pest_rules():
+    return jsonify({'rules': [
+        {'id': 1, 'pest_name': 'Armyworm', 'crop_type': 'maize', 'recommended_action': 'Spray pesticide', 'threshold': 30},
+        {'id': 2, 'pest_name': 'Aphids', 'crop_type': 'beans', 'recommended_action': 'Neem oil', 'threshold': 50}
+    ]})
+
+def get_farming_tips():
+    return jsonify({'tips': [
+        {'id': 1, 'title': 'Water Smart', 'content': 'Water early morning', 'date': '2024-01-01'},
+        {'id': 2, 'title': 'Soil Health', 'content': 'Test pH regularly', 'date': '2024-01-01'}
+    ]})
+
+def get_experts():
+    with get_db() as db:
+        experts = db.execute('SELECT id, name, phone, main_crop FROM farmers WHERE is_expert = 1 LIMIT 10').fetchall()
+        return jsonify({'experts': [dict(e) for e in experts]})
+
+def get_alerts_list():
+    with get_db() as db:
+        alerts = db.execute('SELECT id, message, "info" as type, date FROM alerts ORDER BY date DESC LIMIT 20').fetchall()
+        return jsonify([dict(a) for a in alerts])
+
+# ============ ALERTS CRUD ============
+@app.route('/api/alerts/add', methods=['POST'])
+def add_alert():
+    data = request.json
+    with get_db() as db:
+        db.execute('INSERT INTO alerts (message, risk, pest, advice, prevention, treatment) VALUES (?, ?, ?, ?, ?, ?)',
+                   (data['message'], data.get('risk', 'info'), data.get('pest', 'General'), 
+                    data.get('advice', ''), data.get('prevention', ''), data.get('treatment', '')))
+        db.commit()
+        return jsonify({'success': True, 'message': 'Alert added'})
+
+@app.route('/api/alerts/update/<int:alert_id>', methods=['PUT'])
+def update_alert(alert_id):
+    data = request.json
+    with get_db() as db:
+        db.execute('UPDATE alerts SET message=?, risk=?, pest=?, advice=?, prevention=?, treatment=? WHERE id=?',
+                   (data['message'], data.get('risk', 'info'), data.get('pest', 'General'),
+                    data.get('advice', ''), data.get('prevention', ''), data.get('treatment', ''), alert_id))
+        db.commit()
+        return jsonify({'success': True, 'message': 'Alert updated'})
+
+@app.route('/api/alerts/delete/<int:alert_id>', methods=['DELETE'])
+def delete_alert(alert_id):
+    with get_db() as db:
+        db.execute('DELETE FROM alerts WHERE id=?', (alert_id,))
+        db.commit()
+        return jsonify({'success': True, 'message': 'Alert deleted'})
+
+# ============ PEST RULES CRUD ============
+@app.route('/api/pest-rules/add', methods=['POST'])
+def add_pest_rule():
+    data = request.json
+    with get_db() as db:
+        db.execute('INSERT INTO pest_rules (pest_name, crop_type, recommended_action, threshold) VALUES (?, ?, ?, ?)',
+                   (data['pest_name'], data.get('crop_type', 'general'), data['recommended_action'], data.get('threshold', 70)))
+        db.commit()
+        return jsonify({'success': True, 'message': 'Pest rule added'})
+
+@app.route('/api/pest-rules/update/<int:rule_id>', methods=['PUT'])
+def update_pest_rule(rule_id):
+    data = request.json
+    with get_db() as db:
+        db.execute('UPDATE pest_rules SET pest_name=?, crop_type=?, recommended_action=?, threshold=? WHERE id=?',
+                   (data['pest_name'], data.get('crop_type', 'general'), data['recommended_action'], data.get('threshold', 70), rule_id))
+        db.commit()
+        return jsonify({'success': True, 'message': 'Pest rule updated'})
+
+@app.route('/api/pest-rules/delete/<int:rule_id>', methods=['DELETE'])
+def delete_pest_rule(rule_id):
+    with get_db() as db:
+        db.execute('DELETE FROM pest_rules WHERE id=?', (rule_id,))
+        db.commit()
+        return jsonify({'success': True, 'message': 'Pest rule deleted'})
+
+# ============ FARMING TIPS CRUD ============
+@app.route('/api/farming-tips/add', methods=['POST'])
+def add_farming_tip():
+    data = request.json
+    with get_db() as db:
+        db.execute('INSERT INTO farming_tips (title, content) VALUES (?, ?)',
+                   (data['title'], data['content']))
+        db.commit()
+        return jsonify({'success': True, 'message': 'Farming tip added'})
+
+@app.route('/api/farming-tips/update/<int:tip_id>', methods=['PUT'])
+def update_farming_tip(tip_id):
+    data = request.json
+    with get_db() as db:
+        db.execute('UPDATE farming_tips SET title=?, content=? WHERE id=?',
+                   (data['title'], data['content'], tip_id))
+        db.commit()
+        return jsonify({'success': True, 'message': 'Farming tip updated'})
+
+@app.route('/api/farming-tips/delete/<int:tip_id>', methods=['DELETE'])
+def delete_farming_tip(tip_id):
+    with get_db() as db:
+        db.execute('DELETE FROM farming_tips WHERE id=?', (tip_id,))
+        db.commit()
+        return jsonify({'success': True, 'message': 'Farming tip deleted'})
+
+# ============ EXPERTS MANAGEMENT ============
+@app.route('/api/experts/make/<int:farmer_id>', methods=['POST'])
+def make_expert(farmer_id):
+    with get_db() as db:
+        db.execute('UPDATE farmers SET is_expert = 1 WHERE id=?', (farmer_id,))
+        db.commit()
+        return jsonify({'success': True, 'message': 'Farmer marked as expert'})
+
+@app.route('/api/experts/remove/<int:farmer_id>', methods=['POST'])
+def remove_expert(farmer_id):
+    with get_db() as db:
+        db.execute('UPDATE farmers SET is_expert = 0 WHERE id=?', (farmer_id,))
+        db.commit()
+        return jsonify({'success': True, 'message': 'Expert status removed'})
